@@ -36,23 +36,29 @@ class PasswordAuthentication(object):
     user = Reference(userID, User.id)
 
     def __init__(self):
+        """Empty docstring"""
         pass
     
     def testPassword(self, password):
+        """Empty docstring"""
         return self.passwordHash == hashlib.sha512(self.passwordSalt + password).hexdigest()
     
     def password(self, newPassword):
+        """Empty docstring"""
         self.passwordSalt = self.__randomString(32)
         self.passwordHash = unicode(hashlib.sha512(self.passwordSalt + newPassword).hexdigest())
     
     def requestReset(self):
+        """Empty docstring"""
         self.resetHash = self.__randomString(64)
         return self.resetHash
     
     def isResetHash(self, resetHash):
+        """Empty docstring"""
         return self.resetHash == resetHash
     
     def reset(self, resetHash, newPassword):
+        """Empty docstring"""
         if resetHash == None:
             raise Exception("Reset Hash is wrong")
         if not self.isResetHash(resetHash):
@@ -62,6 +68,7 @@ class PasswordAuthentication(object):
         self.password(newPassword)
     
     def __randomString(self, length):
+        """Empty docstring"""
         if random.SystemRandom:
             r = random.SystemRandom()
         else:

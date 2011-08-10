@@ -11,11 +11,13 @@ class WebServer:
     
     class Callable:
         def __init__(self, call):
+            """Empty docstring"""
             self.__call__ = call
     
 
     @classmethod
     def database(cls):
+        """Empty docstring"""
         if (cls.__database == None):
             cls.__database = PostgreSQL(hostname='localhost',
                                         username='barabas',
@@ -26,6 +28,7 @@ class WebServer:
     
     @classmethod
     def storage(cls):
+        """Empty docstring"""
         if (WebServer.__storage == None):
             WebServer.__storage = SimpleStorageManager("../datafiles/")
         return WebServer.__storage

@@ -5,6 +5,7 @@ from server.identity.user import User
 
 class TestUser(unittest.TestCase):
     def testCreateUser(self):
+        """Empty docstring"""
         return
         user = self.__database.createUser("Nathan", "Samson", "anemail@email.com")
         self.assertEquals("anemail@email.com", user.email())
@@ -26,6 +27,7 @@ class TestUser(unittest.TestCase):
         self.assertNotEquals(userCopy.uniqueID(), user2.uniqueID())
     
     def testCreateUserWithExistingEmail(self):
+        """Empty docstring"""
         return
         user = self.__database.createUser("Nathan", "Samson", "anemail@email.com")
         
@@ -33,6 +35,7 @@ class TestUser(unittest.TestCase):
                           self.__database.createUser, "Other", "User", "anemail@email.com")
     
     def testUserLogin(self):
+        """Empty docstring"""
         return
         user = self.__database.createUser("Nathan", "Samson", "email@email.com")
         self.assertEquals(None, user.lastLoginTime())
@@ -48,4 +51,5 @@ if __name__ == '__main__':
     unittest.main()
 else:
     def TestSuite():
+        """Empty docstring"""
         return unittest.TestLoader().loadTestsFromTestCase(TestUser)

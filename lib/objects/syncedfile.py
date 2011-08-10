@@ -32,6 +32,7 @@ class FileTag(object):
     tagName = Unicode()
     
     def __init__(self, name):
+        """Empty docstring"""
         self.tagName = name
 
 class SyncedFile(object):
@@ -45,10 +46,12 @@ class SyncedFile(object):
     __tags = ReferenceSet(ID, FileTag.fileID)
 
     def __init__(self, fileName, owner = None):
+        """Empty docstring"""
         self.fileName = unicode(fileName)
         self.owner = owner
     
     def findWithTags(store, user, tags):
+        """Empty docstring"""
         debug(True)
         return store.find(SyncedFile, 
                     SyncedFile.ID.is_in(
@@ -61,6 +64,7 @@ class SyncedFile(object):
     findWithTags = staticmethod(findWithTags)
     
     def tag(self, name):
+        """Empty docstring"""
         name = unicode(name)
         store = Store.of(self)
         if (store is not None):
@@ -78,6 +82,7 @@ class SyncedFile(object):
             pass
     
     def untag(self, name):
+        """Empty docstring"""
         name = unicode(name)
         store = Store.of(self)
         if (store is not None):
@@ -89,9 +94,11 @@ class SyncedFile(object):
             pass
     
     def tags(self):
+        """Empty docstring"""
         return [tag.tagName for tag in self.__tags]
     
     def add_to_store(self, store):
+        """Empty docstring"""
         store.add(self)
         
         log_entry = LogEntry(file=self,

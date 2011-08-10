@@ -21,6 +21,7 @@ import login
 
 class Handshake(base.Base):
     def handshake(self, request):
+        """Empty docstring"""
         self.__versions = [1, 0]
         self.__loginModules = ['user-password']
         

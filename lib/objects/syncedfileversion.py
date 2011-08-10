@@ -31,18 +31,22 @@ class SyncedFileVersion(object):
     name = Unicode()
 
     def __init__(self, inputFile, name, editTime, storage):
+        """Empty docstring"""
         self.__data = inputFile
         self.timeEdited = editTime
         self.name = name
         self.__storage = storage
     
     def open(self, storage):
+        """Empty docstring"""
         return storage.open(self.filePointer)
     
     def __storm_loaded__(self):
+        """Empty docstring"""
         self.__storage = None
     
     def __storm_pre_flush__(self):
+        """Empty docstring"""
         if self.__storage:
             self.timeStored = datetime.datetime.now()
             self.filePointer = self.__storage.save(self.__data)

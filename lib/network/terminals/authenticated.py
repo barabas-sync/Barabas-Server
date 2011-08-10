@@ -10,10 +10,12 @@ from ...objects.logentry import LogEntry
 class Authenticated(base.Base):
     class IDList():
         def __init__(self):
+            """Empty docstring"""
             self.__currentSmallestFree = 1
             self.__dict = {}
         
         def append(self, el):
+            """Empty docstring"""
             newID = self.__currentSmallestFree
             self.__dict[newID] = el
             freeKey = newID
@@ -23,6 +25,7 @@ class Authenticated(base.Base):
             return newID
         
         def pop(self, key):
+            """Empty docstring"""
             value = self.__dict[key]
             del self.__dict[key]
             if key < self.__currentSmallestFree:
@@ -30,9 +33,11 @@ class Authenticated(base.Base):
             return value
         
         def __getitem__(self, key):
+            """Empty docstring"""
             return self.__dict[key]
         
         def has(self, key):
+            """Empty docstring"""
             return key in self.__dict
     
     NewVersion = collections.namedtuple('NewVersion', ['synced_file',
@@ -40,12 +45,14 @@ class Authenticated(base.Base):
                                                         'name'])
 
     def __init__(self, server, user):
+        """Empty docstring"""
         base.Base.__init__(self, server)
         self.store = server.get_database_store()
         self.__user = user
         self.__version_commit_list   = Authenticated.IDList()
 
     def newFile(self, request):
+        """Empty docstring"""
         file_name = request['file-name']
         mimetype = request['mimetype']
         
@@ -64,6 +71,7 @@ class Authenticated(base.Base):
         
     
     def requestVersion(self, request):
+        """Empty docstring"""
         synced_file = self.store.find(SyncedFile,
                                       ID=request['file-id'],
                                       owner=self.__user).one()
@@ -89,6 +97,7 @@ class Authenticated(base.Base):
         return (response, self)
     
     def commitVersion(self, request):
+        """Empty docstring"""
         commit_id = request['commit-id']
         if not self.__version_commit_list.has(commit_id):
             raise ProtocolExceptionotocolException(base.Base.BAD_REQUEST, 'Commit ID not valid')
@@ -118,6 +127,7 @@ class Authenticated(base.Base):
         return (response, self)
     
     def requestDownload(self, request):
+        """Empty docstring"""
         synced_file_version = self.store.find(SyncedFileVersion,
                                               ID=request['version-id']).one()
         
@@ -140,6 +150,7 @@ class Authenticated(base.Base):
         return (response, self)
     
     def tag(self, request):
+        """Empty docstring"""
         synced_file = self.store.find(SyncedFile,
                                       ID=request['file-id'],
                                       owner=self.__user).one()
@@ -157,6 +168,7 @@ class Authenticated(base.Base):
         return (response, self)
     
     def untag(self, request):
+        """Empty docstring"""
         synced_file = self.store.find(SyncedFile,
                                       ID=request['file-id'],
                                       owner=self.__user).one()
@@ -174,7 +186,9 @@ class Authenticated(base.Base):
         return (response, self)
 
     def downloadLog(self, request):
+        """Empty docstring"""
         def log_entry(entry):
+            """Empty docstring"""
             if (entry.tagName == None and entry.versionID == None and entry.isNew == True):
                 return {'type': 'new-file',
                         'log-id': entry.ID,

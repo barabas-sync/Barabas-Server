@@ -21,6 +21,7 @@ import storm
 class SQLDatabase:
     class SQLStore(storm.locals.Store):
         def install(self, fl):
+            """Empty docstring"""
             fp = open(fl)
             queries = fp.read().split("\n\n")
             for q in queries:
@@ -28,9 +29,11 @@ class SQLDatabase:
             fp.close()
 
     def __init__(self, database):
+        """Empty docstring"""
         self.__database = database
     
     def new_store(self):
+        """Empty docstring"""
         return SQLDatabase.SQLStore(self.__database)
     
 

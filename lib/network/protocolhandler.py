@@ -25,6 +25,7 @@ from terminals.handshake import Handshake as HandshakeTerminal
 
 class ProtocolHandler(SocketServer.BaseRequestHandler):
     def handle(self):
+        """Empty docstring"""
         print "Opened connection with %s" % str(self.request.getpeername())
         self.__terminal = HandshakeTerminal(self.server)
         self.__running = True
@@ -81,6 +82,7 @@ class ProtocolHandler(SocketServer.BaseRequestHandler):
         print "Closed connection with %s:%s" % self.request.getpeername()
     
     def __send(self, response):
+        """Empty docstring"""
         responseIO = StringIO.StringIO()
         json.dump(response, responseIO)
         self.request.send(responseIO.getvalue() + "\n")

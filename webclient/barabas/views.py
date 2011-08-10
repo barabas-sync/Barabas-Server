@@ -14,12 +14,14 @@ from lib.objects.syncedfileversion import SyncedFileVersion
 
 class UploadedFileWrapper:
     def __init__(self, upload):
+        """Empty docstring"""
         self.__upload = upload
         self.__currentChunk = 0
         self.__chunks = self.__upload.chunks()
         self.__buffer = None
     
     def read(self, length = None):
+        """Empty docstring"""
         if (length == None):
             return self.__upload.read()
         else:

@@ -22,9 +22,11 @@ import string
 
 class SimpleStorageManager:
     def __init__(self, base_path):
+        """Empty docstring"""
         self.__base_path = base_path
     
     def save(self, input_file):
+        """Empty docstring"""
         fullpath, file_pointer = self.__find_filename()
 
         f = open(fullpath, "wb")
@@ -36,10 +38,13 @@ class SimpleStorageManager:
         return unicode(file_pointer)
     
     def open(self, file_pointer):
+        """Empty docstring"""
         return open(os.path.join(self.__base_path, file_pointer))
         
     def __find_filename(self):
+        """Empty docstring"""
         def generate_random_string():
+            """Empty docstring"""
             return ''.join(random.choice(string.letters + string.digits) for i in xrange(10))
 
         filename = generate_random_string()

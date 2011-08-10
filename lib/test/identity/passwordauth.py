@@ -6,6 +6,7 @@ from server.identity.user import User
 
 class TestPasswordAuth(unittest.TestCase):
     def testStorePasswordAuth(self):
+        """Empty docstring"""
         pa = PasswordAuthentication()
         pa.username = u'nathan'
         pa.user = self.__user
@@ -17,6 +18,7 @@ class TestPasswordAuth(unittest.TestCase):
         self.assertFalse(pa.testPassword("theSuperWrongPassword"))
     
     def testChangePassword(self):
+        """Empty docstring"""
         pa = PasswordAuthentication()
         pa.username = u'nathan'
         pa.user = self.__user
@@ -28,6 +30,7 @@ class TestPasswordAuth(unittest.TestCase):
         self.assertFalse(pa.testPassword("theSuperHardPassword"))
     
     def testRequestReset(self):
+        """Empty docstring"""
         pa = PasswordAuthentication()
         pa.username = u'nathan'
         pa.user = self.__user
@@ -40,6 +43,7 @@ class TestPasswordAuth(unittest.TestCase):
         self.assertTrue(pa.testPassword("theSuperHardPassword"))
     
     def testReset(self):
+        """Empty docstring"""
         pa = PasswordAuthentication()
         pa.username = u'nathan'
         pa.user = self.__user
@@ -51,6 +55,7 @@ class TestPasswordAuth(unittest.TestCase):
         self.assertTrue(pa.testPassword("newPassword"))
     
     def testResetWithWrongHash(self):
+        """Empty docstring"""
         pa = PasswordAuthentication()
         pa.username = u'nathan'
         pa.user = self.__user
@@ -62,6 +67,7 @@ class TestPasswordAuth(unittest.TestCase):
         self.assertFalse(pa.testPassword("newPass"))
     
     def testResetWithNoRequest(self):
+        """Empty docstring"""
         pa = PasswordAuthentication()
         pa.username = u'nathan'
         pa.user = self.__user
@@ -72,6 +78,7 @@ class TestPasswordAuth(unittest.TestCase):
         self.assertFalse(pa.testPassword("newPass"))
     
     def testStorePassword(self):
+        """Empty docstring"""
         pa = PasswordAuthentication()
         pa.username = u'nathansamson'
         pa.password("mePassword")
@@ -82,6 +89,7 @@ class TestPasswordAuth(unittest.TestCase):
         self.assertTrue(pa.testPassword("mePassword"))
     
     def testSavePassword(self):
+        """Empty docstring"""
         pa = PasswordAuthentication()
         pa.user = self.__user
         pa.username = u'nathansamson'
@@ -100,16 +108,19 @@ class TestPasswordAuth(unittest.TestCase):
         self.assertTrue(pa.testPassword("newPassword"))
     
     def setUp(self):
+        """Empty docstring"""
         self.__database = server.database.sqlitedatabase.SQLiteDatabase(":memory:")
         self.__database.install('server/database/sql/sqlite/v1.sql')
         self.__database.install('server/database/sql/sqlite/v2.sql')
         self.__user = User(u'Nathan', u'Samson', u'anemail@company.com')
     
     def tearDown(self):
+        """Empty docstring"""
         self.__database.close()
     
 if __name__ == '__main__':
     unittest.main()
 else:
     def TestSuite():
+        """Empty docstring"""
         return unittest.TestLoader().loadTestsFromTestCase(TestPasswordAuth)

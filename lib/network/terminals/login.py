@@ -23,6 +23,7 @@ from ...identity.passwordauthentication import PasswordAuthentication
 
 class Login(base.Base):
     def login(self, request):
+        """Empty docstring"""
         store = self.server.get_database_store()
     
         if request['login-module'] == 'user-password':

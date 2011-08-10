@@ -22,45 +22,55 @@ import tempfile
 
 class Channel(threading.Thread):
     def __init__(self, host, port):
+        """Empty docstring"""
         self.__host = host
         self.port = port
         self.__ready = False
         threading.Thread.__init__(self)
     
     def port(self):
+        """Empty docstring"""
         return self.__port    
     
     def run(self):
+        """Empty docstring"""
         self.server = SocketServer.TCPServer((self.__host, self.port), self.handler)
         self.server.channel = self
         self.server.serve_forever()
     
     def set_ready(self):
+        """Empty docstring"""
         self.__ready = True
     
     def is_ready(self):
+        """Empty docstring"""
         return self.__ready
     
     def stop(self):
+        """Empty docstring"""
         self.server.shutdown()
 
 
 class DownloadChannel(Channel):
     def __init__(self, host, port):
+        """Empty docstring"""
         Channel.__init__(self, host, port)
         self.handler = DownloadChannel.Handler
     
     def open(self):
+        """Empty docstring"""
         return self.current_handler.read()
     
     class Handler(SocketServer.BaseRequestHandler):
         def setup(self):
+            """Empty docstring"""
             self.server.channel.current_handler = self
             self.file = tempfile.TemporaryFile()
             self.fileLock = threading.RLock()
             self.fileLock.acquire()
 
         def handle(self):
+            """Empty docstring"""
             buf = self.request.recv(1024)
             while buf:
                 self.file.write(buf)
@@ -69,6 +79,7 @@ class DownloadChannel(Channel):
             self.server.channel.set_ready()
 
         def read(self):
+            """Empty docstring"""
             self.fileLock.acquire()
             self.file.seek(0)
             self.fileLock.release()
@@ -76,12 +87,14 @@ class DownloadChannel(Channel):
 
 class UploadChannel(Channel):
     def __init__(self, host, port, transfer_file):
+        """Empty docstring"""
         Channel.__init__(self, host, port)
         self.handler = UploadChannel.Handler
         self.transfer_file = transfer_file
     
     class Handler(SocketServer.BaseRequestHandler):
         def handle(self):
+            """Empty docstring"""
             buf = self.server.channel.transfer_file.read(1024)
             while buf:
                 self.request.send(buf)

@@ -37,6 +37,7 @@ class LogEntry(object):
     timeEdited = DateTime()
     
     def __init__(self,
+        """Empty docstring"""
                  file,
                  is_new,
                  file_name=None,

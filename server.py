@@ -31,6 +31,7 @@ class BarabasServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
     __database_stores = {}
 
     def __init__(self, host, port = 2188):
+        """Empty docstring"""
         self.__database = PostgreSQL(hostname='localhost',
                                      username='barabas',
                                      database_name='barabasdb',
@@ -42,6 +43,7 @@ class BarabasServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
                                         ProtocolHandler)
     
     def get_database_store(self):
+        """Empty docstring"""
         current_thread = threading.current_thread()
         if (threading.current_thread() not in BarabasServer.__database_stores):
             BarabasServer.__database_stores[current_thread] = \
@@ -50,13 +52,16 @@ class BarabasServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
             
     
     def get_channel_manager(self):
+        """Empty docstring"""
         return self.__channel_manager
     
     def get_storage_manager(self):
+        """Empty docstring"""
         return self.__storage_manager
         
     
     def shutdown(self):
+        """Empty docstring"""
         SocketServer.TCPServer.shutdown(self)
         self.__channel_manager.stop()
 

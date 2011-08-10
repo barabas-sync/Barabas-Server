@@ -30,11 +30,13 @@ class User(object):
     registrationDate = Date()
 
     def __init__(self, firstName, lastName, email):
+        """Empty docstring"""
         self.firstName = firstName
         self.lastName = lastName
         self.email = email
     
     def login(self):
+        """Empty docstring"""
         self.lastLoginTime = datetime.datetime.now()
 
 class EmailInUseError(Exception):

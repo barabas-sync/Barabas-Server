@@ -10,6 +10,7 @@ from server.storage.errors import NotSavedError
 
 class TestSyncedFile(unittest.TestCase):
     def setUp(self):
+        """Empty docstring"""
         self.__database = server.database.sqlitedatabase.SQLiteDatabase(":memory:")
         self.__database.install('server/database/sql/sqlite/v1.sql')
         self.__database.install('server/database/sql/sqlite/v2.sql')
@@ -18,9 +19,11 @@ class TestSyncedFile(unittest.TestCase):
         self.__user2 = User(u'Other', u'User', u'email2@email.com')
     
     def tearDown(self):
+        """Empty docstring"""
         self.__database.close()    
     
     def testCreate(self):
+        """Empty docstring"""
         file = SyncedFile("afilename.txt", self.__user1)
         self.assertEqual("afilename.txt", file.fileName)
         self.__database.add(file)
@@ -29,6 +32,7 @@ class TestSyncedFile(unittest.TestCase):
         self.assertEqual(sf.owner, self.__user1)
         
     def testCreateNameCollision(self):
+        """Empty docstring"""
         file1 = SyncedFile("readme.txt", self.__user1) # Readme for project X
         self.__database.add(file1)
         self.__database.flush()
@@ -41,6 +45,7 @@ class TestSyncedFile(unittest.TestCase):
         self.assertNotEqual(file1.ID, file2.ID)
     
     def testTag(self):
+        """Empty docstring"""
         file1 = SyncedFile("someFunnyFile.png", self.__user1)
         self.__database.add(file1)
         self.__database.flush()
@@ -57,10 +62,12 @@ class TestSyncedFile(unittest.TestCase):
         self.assertTrue("Humour" in file1Copy.tags())
     
     def testTagBeforeSave(self):
+        """Empty docstring"""
         file1 = SyncedFile("someFile.png", self.__user1)
         file1.tag("Some-Tag")
     
     def testUntag(self):
+        """Empty docstring"""
         file1 = SyncedFile("someFile", self.__user1)
         self.__database.add(file1)
         
@@ -71,6 +78,7 @@ class TestSyncedFile(unittest.TestCase):
         self.assertEquals([], file1.tags())
     
     def testUntagTwice(self):
+        """Empty docstring"""
         (aFile, bFile) = self._insertCommonData()
         
         aFile.untag("Work")
@@ -79,6 +87,7 @@ class TestSyncedFile(unittest.TestCase):
         self.assertEquals(["Work"], bFile.tags())
     
     def testTagTwice(self):
+        """Empty docstring"""
         (aFile, bFile) = self._insertCommonData()
         aFile.tag("Work")
         
@@ -86,6 +95,7 @@ class TestSyncedFile(unittest.TestCase):
         self.assertEquals(["Work"], bFile.tags())
 
     def testFindFilesWithOneTag(self):
+        """Empty docstring"""
         self._insertCommonData()
         
         fileNames = [sf.fileName for sf in SyncedFile.findWithTags(self.__database, self.__user1, (u"Work", ))]
@@ -93,6 +103,7 @@ class TestSyncedFile(unittest.TestCase):
         self.assertEqual([u"aFileName", u"bFileName"], fileNames)
     
     def testFindFilesWithMoreTags(self):
+        """Empty docstring"""
         self._insertCommonData()
         
         fileNames = [sf.fileName for sf in SyncedFile.findWithTags(self.__database, self.__user1, (u"Work", u"Project X"))]
@@ -100,6 +111,7 @@ class TestSyncedFile(unittest.TestCase):
         self.assertEqual(["aFileName"], fileNames)
     
     def testFindFilesWithTags(self):
+        """Empty docstring"""
         self._insertCommonData()
         
         fileNames = [sf.fileName for sf in SyncedFile.findWithTags(self.__database, self.__user1, (u"TODO", u"Project X"))]
@@ -107,6 +119,7 @@ class TestSyncedFile(unittest.TestCase):
         self.assertEqual(["aFileName"], fileNames)
     
     def testVersions(self):
+        """Empty docstring"""
         file1 = SyncedFile("versionedfile", self.__user1)
         self.__database.add(file1)
         
@@ -146,6 +159,7 @@ class TestSyncedFile(unittest.TestCase):
         
         
     def testStoreFile(self):
+        """Empty docstring"""
         syncedFile = SyncedFile("aFileName", self.__user1)
         self.__database.add(syncedFile)
         self.__database.flush()
@@ -177,6 +191,7 @@ class TestSyncedFile(unittest.TestCase):
         self.assertNotEqual(version1X.ID, version2X.ID)        
     
     def _insertCommonData(self):
+        """Empty docstring"""
         aFile = SyncedFile("aFileName", self.__user1)
         self.__database.add(aFile)
 
@@ -201,4 +216,5 @@ if __name__ == '__main__':
     unittest.main()
 else:
     def TestSuite():
+        """Empty docstring"""
         return unittest.TestLoader().loadTestsFromTestCase(TestSyncedFile)

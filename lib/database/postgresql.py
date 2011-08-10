@@ -22,6 +22,7 @@ from sqldatabase import SQLDatabase
 
 class PostgreSQL(SQLDatabase):
     def __init__(self, username, password, hostname, database_name, port = 5432):
+        """Empty docstring"""
         args = {'username': username,
                 'password': password,
                 'hostname': hostname,

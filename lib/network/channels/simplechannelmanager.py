@@ -26,6 +26,7 @@ class SimpleChannelManager(threading.Thread):
     CLEANUP_INTERVAL = 2.0
 
     def __init__(self, host, port_range):
+        """Empty docstring"""
         self.__host = host
         self.__port_range = port_range
         self.__used_ports = set()
@@ -34,21 +35,25 @@ class SimpleChannelManager(threading.Thread):
         threading.Thread.__init__(self)
     
     def new_download_channel(self):
+        """Empty docstring"""
         port = self.__find_port()
         channel = DownloadChannel(self.__host, port)
         self.__running_channels.append(channel)
         return channel
     
     def new_upload_channel(self, file_data):
+        """Empty docstring"""
         port = self.__find_port()
         channel = UploadChannel(self.__host, port, file_data)
         self.__running_channels.append(channel)
         return channel
     
     def stop(self):
+        """Empty docstring"""
         self.__running = False
     
     def run(self):
+        """Empty docstring"""
         self.__running = True
         while self.__running:
             for channel in self.__running_channels:
@@ -60,6 +65,7 @@ class SimpleChannelManager(threading.Thread):
             time.sleep(SimpleChannelManager.CLEANUP_INTERVAL)
     
     def __find_port(self):
+        """Empty docstring"""
         port = random.choice(self.__port_range)
         while port in self.__used_ports:
             port = random.choice(self.__port_range)

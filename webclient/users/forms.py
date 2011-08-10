@@ -8,6 +8,7 @@ class PasswordLoginForm(forms.Form):
     password = forms.CharField(widget=forms.PasswordInput, label = "Password")
     
     def clean(self):
+        """Empty docstring"""
         data = self.cleaned_data
         db = webserver.WebServer.database()
         pa = db.find(PasswordAuthentication, PasswordAuthentication.username == data['username']).one()
@@ -28,6 +29,7 @@ class PasswordBasedRegistrationForm(forms.Form):
     passwordCheck = forms.CharField(widget = forms.PasswordInput, label = "Password (check)")
     
     def clean(self):
+        """Empty docstring"""
         data = self.cleaned_data
         print data['password']
         

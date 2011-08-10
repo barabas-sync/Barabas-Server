@@ -27,16 +27,20 @@ class Base():
     USER_NOT_FOUND = 1000
 
     def __init__(self, server):
+        """Empty docstring"""
         self.server = server
 
 class ProtocolException(Exception):
     def __init__(self, code, msg):
+        """Empty docstring"""
         Exception.__init__(self, 'Protocol Exception = ' + str(code) + ': ' + msg)
         self.__code = code
         self.__msg = msg
     
     def code(self):
+        """Empty docstring"""
         return self.__code
     
     def msg(self):
+        """Empty docstring"""
         return self.__msg
