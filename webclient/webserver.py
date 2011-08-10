@@ -1,0 +1,31 @@
+import sys
+sys.path.append('..')
+
+from lib.database.postgresql import PostgreSQL
+from lib.simplestoragemanager import SimpleStorageManager
+
+class WebServer:
+    __database = None
+    __storage = None
+    __store = None
+    
+    class Callable:
+        def __init__(self, call):
+            self.__call__ = call
+    
+
+    @classmethod
+    def database(cls):
+        if (cls.__database == None):
+            cls.__database = PostgreSQL(hostname='localhost',
+                                        username='barabas',
+                                        database_name='barabasdb',
+                                        password='barabaspw')
+            cls.__store = cls.__database.new_store()
+        return cls.__store
+    
+    @classmethod
+    def storage(cls):
+        if (WebServer.__storage == None):
+            WebServer.__storage = SimpleStorageManager("../datafiles/")
+        return WebServer.__storage

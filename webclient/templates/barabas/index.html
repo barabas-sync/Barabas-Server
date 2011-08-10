@@ -1,0 +1,21 @@
+{% extends "main.html" %}
+
+{% block title %}Your dashboard{% endblock %}
+
+{% block content %}
+	<h1>Welcome</h1>
+	
+	<h2>A list of your tags</h2>
+	{% for tag in tagCloud %}
+		<a href="/files/tags/{{ tag }}/">{{ tag }}</a>
+	{% endfor %}
+	
+	<h2>Upload a new File</h2>
+	<form action="/files/create/" method="POST" enctype="multipart/form-data">
+		{% csrf_token %}
+		
+		{{ createFileForm.as_p }}
+		
+		<input type="submit" label="Store file" />
+	</form>
+{% endblock %}

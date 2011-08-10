@@ -1,0 +1,2 @@
+class NotSavedError(Exception):
+    pass

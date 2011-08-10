@@ -1,0 +1,15 @@
+{% extends "main.html" %}
+
+{% block title %}Uploading a new file{% endblock %}
+
+{% block content %}
+	<h1>Uploading a new file</h1>
+	
+	<form action="/files/create/" method="POST" enctype="multipart/form-data">
+		{% csrf_token %}
+		
+		{{ createFileForm.as_p }}
+		
+		<input type="submit" label="Store file" />
+	</form>
+{% endblock %}

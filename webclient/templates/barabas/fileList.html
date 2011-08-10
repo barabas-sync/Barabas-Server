@@ -1,0 +1,13 @@
+{% extends "main.html" %}
+
+{% block title %}List of files{% endblock %}
+
+{% block content %}
+	<ol>
+	{% for file in files %}
+		<li>
+			<a href="/files/{{ file.ID }}/">{{ file.fileName }}</a>
+		</li>
+	{% endfor %}
+	</ol>
+{% endblock %}

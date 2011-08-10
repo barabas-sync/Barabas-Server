@@ -1,0 +1,37 @@
+{% extends "main.html" %}
+
+{% block title %}Your dashboard{% endblock %}
+
+{% block content %}
+	<h1>{{ file.name }}</h1>
+	
+	<h2>Versions</h2>
+	
+	<ol>
+	{% for version in versions %}
+		<li>{{ version.timeEdited }} <a href="/fst/files/{{ file.ID }}/{{ version.ID }}/download/">(Download)</a></li>
+	{% endfor %}
+	</ol>
+	
+	<h3>Upload a new version</h3>
+	
+	<form action="/files/{{ file.ID }}/store/" method="POST" enctype="multipart/form-data">
+		{% csrf_token %}
+		
+		{{ uploadVersionForm.as_p }}
+		
+		<input type="submit" label="Upload new version" />
+	</form>
+	
+	<h2>Tags</h2>
+	{% for tag in file.tags %}
+		<a href="/files/tags/{{ tag }}/">{{ tag }}</a>
+	{% endfor %}
+	<form action="/files/{{ file.ID }}/tag/" method="POST">
+		{% csrf_token %}
+		
+		{{ tagFileForm.as_p }}
+		
+		<input type="submit" label="Tag file" />
+	</form>
+{% endblock %}
