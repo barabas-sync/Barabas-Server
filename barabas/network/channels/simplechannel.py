@@ -21,10 +21,11 @@ import SocketServer
 import tempfile
 
 class Channel(threading.Thread):
-    def __init__(self, host, port):
+    def __init__(self, host, port, connect_ip):
         """Empty docstring"""
         self.__host = host
         self.port = port
+        self.connect_ip = connect_ip
         self.__ready = False
         threading.Thread.__init__(self)
     
@@ -52,9 +53,9 @@ class Channel(threading.Thread):
 
 
 class DownloadChannel(Channel):
-    def __init__(self, host, port):
+    def __init__(self, host, port, connect_ip):
         """Empty docstring"""
-        Channel.__init__(self, host, port)
+        Channel.__init__(self, host, port, connect_ip)
         self.handler = DownloadChannel.Handler
     
     def open(self):
@@ -86,9 +87,9 @@ class DownloadChannel(Channel):
             return self.file
 
 class UploadChannel(Channel):
-    def __init__(self, host, port, transfer_file):
+    def __init__(self, host, port, connect_ip, transfer_file):
         """Empty docstring"""
-        Channel.__init__(self, host, port)
+        Channel.__init__(self, host, port, connect_ip)
         self.handler = UploadChannel.Handler
         self.transfer_file = transfer_file
     

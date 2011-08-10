@@ -16,24 +16,11 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Barabas Server.  If not, see <http://www.gnu.org/licenses/>.
 
-import storm
+import urllib
 
-class SQLDatabase:
-    class SQLStore(storm.locals.Store):
-        def install(self, fl):
-            """Empty docstring"""
-            fp = open(fl)
-            queries = fp.read().split("\n\n")
-            for q in queries:
-                self.execute(q)
-            fp.close()
-
-    def __init__(self, database):
-        """Empty docstring"""
-        self.__database = database
-    
-    def new_store(self):
-        """Empty docstring"""
-        return SQLDatabase.SQLStore(self.__database)
-    
-
+def get_public_ipv4():
+    """Returns the Public IPv4 of the running Amazon EC2 server"""
+    f = urllib.open('http://169.254.169.254/latest/meta-data/public-ipv4')
+    public_ip = f.read()
+    f.close()
+    return public_ip

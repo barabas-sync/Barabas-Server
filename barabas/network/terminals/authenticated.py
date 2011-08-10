@@ -89,7 +89,7 @@ class Authenticated(base.Base):
                     'code': base.Base.OK,
                     'commit-id': commit_id,
                     'channel-info': {
-                                     'host': None,
+                                     'host': new_channel.connect_ip,
                                      'port': new_channel.port
                                     }
                    }
@@ -142,7 +142,7 @@ class Authenticated(base.Base):
                     'code': base.Base.OK,
                     'commit-id': 0,
                     'channel-info': {
-                                     'host': None,
+                                     'host': new_channel.connect_ip,
                                      'port': new_channel.port
                                     }
                    }

@@ -1,0 +1,30 @@
+[Database]
+module=barabas.database.sqldatabase
+constructor=create_postgresql
+;constructor=create_mysql
+
+host=thehost
+name=database_name
+username=username
+password=username_password
+;Port is not required if running on default port (5432 for Postgres, 3306 for MySQL)
+;port=5432
+
+
+
+[Storage]
+module=barabas.simplestoragemanager
+constructor=SimpleStorageManager
+
+path=datafiles/
+
+[Server]
+listen_address=0.0.0.0
+listen_port=2188
+data_port_min=50000
+data_port_max=50010
+
+public_ip=127.0.0.1
+; For hosts running on Amazon EC2: (comment above line)
+;public_ip_module=barabas.amazon
+;public_ip_function=get_public_ipv4

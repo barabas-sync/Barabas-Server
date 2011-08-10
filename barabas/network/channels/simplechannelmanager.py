@@ -25,26 +25,28 @@ from simplechannel import DownloadChannel, UploadChannel
 class SimpleChannelManager(threading.Thread):
     CLEANUP_INTERVAL = 2.0
 
-    def __init__(self, host, port_range):
+    def __init__(self, host, port_range, connect_ip):
         """Empty docstring"""
         self.__host = host
         self.__port_range = port_range
+        self.__connect_ip = connect_ip
         self.__used_ports = set()
         self.__running_channels = []
         self.__running = False
+        print self.__connect_ip
         threading.Thread.__init__(self)
     
     def new_download_channel(self):
         """Empty docstring"""
         port = self.__find_port()
-        channel = DownloadChannel(self.__host, port)
+        channel = DownloadChannel(self.__host, port, self.__connect_ip)
         self.__running_channels.append(channel)
         return channel
     
     def new_upload_channel(self, file_data):
         """Empty docstring"""
         port = self.__find_port()
-        channel = UploadChannel(self.__host, port, file_data)
+        channel = UploadChannel(self.__host, port, self.__connect_ip, file_data)
         self.__running_channels.append(channel)
         return channel
     

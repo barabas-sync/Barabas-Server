@@ -16,18 +16,27 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Barabas Server.  If not, see <http://www.gnu.org/licenses/>.
 
-from storm.locals import create_database
+from storm.locals import create_database, Store
 
-from sqldatabase import SQLDatabase
+class SQLDatabase:
+    class SQLStore(Store):
+        def install(self, fl):
+            """Empty docstring"""
+            fp = open(fl)
+            queries = fp.read().split("\n\n")
+            for q in queries:
+                self.execute(q)
+            fp.close()
 
-class PostgreSQL(SQLDatabase):
-    def __init__(self, username, password, hostname, database_name, port = 5432):
+    def __init__(self, database):
         """Empty docstring"""
-        args = {'username': username,
-                'password': password,
-                'hostname': hostname,
-                'port': port,
-                'database_name': database_name}
-        SQLDatabase.__init__(self, create_database('postgres://%(username)s:%(password)s@%(hostname)s:%(port)d/%(database_name)s' % args))
-
-            
+        self.__database = database
+    
+    def new_store(self):
+        """Empty docstring"""
+        return SQLDatabase.SQLStore(self.__database)
+    
+def create_postgresql(host, name, username, password, port = 5432):
+    """Empty docstring"""
+    args = (username, password, host, port, name)
+    return SQLDatabase(create_database('postgres://%s:%s@%s:%s/%s' % args))

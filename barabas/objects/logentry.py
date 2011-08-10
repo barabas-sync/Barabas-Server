@@ -37,7 +37,6 @@ class LogEntry(object):
     timeEdited = DateTime()
     
     def __init__(self,
-        """Empty docstring"""
                  file,
                  is_new,
                  file_name=None,
@@ -46,6 +45,7 @@ class LogEntry(object):
                  version=None,
                  version_name=None,
                  time_edited=None):
+        """Empty docstring"""
         # self.file and self.version are defined (respectively)
         # by SyncedFile and SyncedFileVersion
         self.file = file

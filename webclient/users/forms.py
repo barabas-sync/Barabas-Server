@@ -1,7 +1,7 @@
 from django import forms
 import webserver
-from lib.identity.user import User
-from lib.identity.passwordauthentication import PasswordAuthentication
+from barabas.identity.user import User
+from barabas.identity.passwordauthentication import PasswordAuthentication
 
 class PasswordLoginForm(forms.Form):
     username = forms.CharField(max_length = 32, label = "Username")

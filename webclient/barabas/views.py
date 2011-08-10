@@ -9,8 +9,8 @@ from storm.locals import *
 import webserver
 import barabas.forms
 from users.decorators import LoginRequired
-from lib.objects.syncedfile import SyncedFile, FileTag
-from lib.objects.syncedfileversion import SyncedFileVersion
+from barabas.objects.syncedfile import SyncedFile, FileTag
+from barabas.objects.syncedfileversion import SyncedFileVersion
 
 class UploadedFileWrapper:
     def __init__(self, upload):
