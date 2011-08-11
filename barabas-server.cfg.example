@@ -18,6 +18,15 @@ constructor=SimpleStorageManager
 
 path=datafiles/
 
+; Storage example for S3 (this replaces previous section)
+;[Storage]
+;module=barabas.amazon
+;constructor=S3StorageManager
+;key=YOURAWSKEY
+;secret=YOURAWSSECRET
+;bucket=bucketname
+;location=
+
 [Server]
 listen_address=0.0.0.0
 listen_port=2188
@@ -25,6 +34,6 @@ data_port_min=50000
 data_port_max=50010
 
 public_ip=127.0.0.1
-; For hosts running on Amazon EC2: (comment above line)
+; For hosts running on Amazon EC2: (comment previous line)
 ;public_ip_module=barabas.amazon
 ;public_ip_function=get_public_ipv4

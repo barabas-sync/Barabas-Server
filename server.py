@@ -41,7 +41,7 @@ class BarabasServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
             xrange(config.getint('Server', 'data_port_min'),
                    config.getint('Server', 'data_port_max')),
             self.__get_public_ip(config))
-        self.__channel_manager.run()
+        self.__channel_manager.start()
         self.__load_storage_manager(config)
         SocketServer.TCPServer.__init__(self, (host, port),
                                         ProtocolHandler)
@@ -90,7 +90,7 @@ class BarabasServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
         constructor = sys.modules[module].__dict__[constructor_name]
         
         args = {}
-        for (name, value) in config.items('Database'):
+        for (name, value) in config.items('Storage'):
             if name not in ['module', 'constructor']:
                 args[name] = value
         
