@@ -19,6 +19,7 @@
 
 
 import ConfigParser
+import os.path
 import SocketServer
 import sys
 import threading
@@ -117,7 +118,18 @@ class BarabasServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
 
 if __name__ == "__main__":
     config = ConfigParser.ConfigParser()
-    config.read('barabas-server.cfg')
+    
+    config_path = None
+    config_paths = ['barabas-server.cfg', '/etc/barabas-server.cfg']
+    for config_path in config_paths:
+        if os.path.isfile(config_path):
+            break
+        else:
+            config_path = None
+    if config_path == None:
+        print "Did not find config file, stopping..."
+        exit(1)
+    config.read(config_path)
 
     s = BarabasServer(config.get("Server", "listen_address"),
                       config.getint("Server", "listen_port"),
