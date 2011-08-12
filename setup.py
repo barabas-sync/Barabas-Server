@@ -12,5 +12,7 @@ setup(name='Barabas',
                 'barabas.network', 'barabas.network.channels',
                 'barabas.network.terminals', 'barabas.objects'],
       scripts=['barabasd'],
-      data_files=[('/etc', ['barabas-server.cfg.example'])]
+      data_files=[('/etc', ['barabas-server.cfg.example']),
+                  ('/etc/init.d/', ['init/barabasd'])
+                 ]
      )
