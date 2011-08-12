@@ -24,7 +24,7 @@ import boto.s3.connection
 
 def get_public_ipv4():
     """Returns the Public IPv4 of the running Amazon EC2 server"""
-    f = urllib.open('http://169.254.169.254/latest/meta-data/public-ipv4')
+    f = urllib.urlopen('http://169.254.169.254/latest/meta-data/public-ipv4')
     public_ip = f.read()
     f.close()
     return public_ip

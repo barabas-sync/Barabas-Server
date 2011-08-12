@@ -40,3 +40,8 @@ def create_postgresql(host, name, username, password, port = 5432):
     """Empty docstring"""
     args = (username, password, host, port, name)
     return SQLDatabase(create_database('postgres://%s:%s@%s:%s/%s' % args))
+
+def create_mysql(host, name, username, password, port = 3306):
+    """Create a MySQL Database Connection"""
+    args = (username, password, host, port, name)
+    return SQLDatabase(create_database('mysql://%s:%s@%s:%s/%s' % args))

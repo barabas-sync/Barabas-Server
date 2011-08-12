@@ -1,7 +1,7 @@
 import sys
 sys.path.append('..')
 
-from barabas.database.postgresql import PostgreSQL
+from barabas.database.sqldatabase import create_postgresql
 from barabas.simplestoragemanager import SimpleStorageManager
 
 class WebServer:

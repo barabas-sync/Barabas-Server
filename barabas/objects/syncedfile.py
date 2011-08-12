@@ -78,6 +78,7 @@ class SyncedFile(object):
                                      is_new=True,
                                      tag_name=name)
                 store.add(log_entry)
+            store.commit()
         else:
             pass
     
@@ -90,6 +91,7 @@ class SyncedFile(object):
 
             if tag is not None:
                 store.remove(tag)
+            store.commit()
         else:
             pass
     

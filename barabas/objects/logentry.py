@@ -51,6 +51,7 @@ class LogEntry(object):
         self.file = file
         self.isNew = is_new
         self.fileName = file_name
+        self.mimetype = mimetype
         self.tagName = tag_name
         self.version = version
         self.versionName = version_name
