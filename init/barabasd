@@ -18,7 +18,7 @@
 # Description:       Barabas server daemon implements the Barabas protocol.
 ### END INIT INFO
 
-BARABASD_BIN=/usr/bin/barabasd
+BARABASD_BIN=barabasd
 
 if [ "$1" = 'status' ]; then
     test -x $BARABASD_BIN || exit 4
@@ -31,7 +31,6 @@ fi
 . /etc/sysconfig/network
 
 LOCKFILE=/var/lock/subsys/barabasd
-PIDFILE=/var/run/barabsd.pid
 RETVAL=0
 
 base=${0##*/}
@@ -41,7 +40,7 @@ start() {
     [ ${NETWORKING} = "no" ] && exit 1
 
 	echo -n $"Starting Barabas Daemon... "
-    daemon --pidfile=${PIDFILE} $BARABSD_BIN
+    daemon "$BARABASD_BIN &"
     RETVAL=$?
     echo
     [ $RETVAL -eq 0 ] && touch ${LOCKFILE}
@@ -50,9 +49,9 @@ start() {
 
 stop() {
     echo -n $"Shutting down Barabas daemon: "
-    killproc -p ${PIDFILE} $AVAHI_BIN
+    killproc $BARABASD_BIN
     RETVAL=$?
-    [ $RETVAL -eq 0 ] && rm -f ${LOCKFILE} ${PIDFILE}
+    [ $RETVAL -eq 0 ] && rm -f ${LOCKFILE}
     echo
 	return $RETVAL
 }
@@ -73,7 +72,7 @@ case "$1" in
 	stop
 	;;
   status)
-	status -p ${PIDFILE} $BARABASD_BIN
+	status $BARABASD_BIN
         RETVAL=$?
 	;;
   restart)
