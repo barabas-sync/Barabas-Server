@@ -1,4 +1,3 @@
-#! /usr/bin/env python
 # vim: set expandtab set ts=4 tw=4
 #
 # This file is part of Barabas Server.
@@ -21,7 +20,7 @@ import ConfigParser
 import os.path
 import sys
 
-def load_config_file()
+def load_config_file():
     config = ConfigParser.ConfigParser()
     
     config_path = None

@@ -52,7 +52,6 @@ class SyncedFile(object):
     
     def findWithTags(store, user, tags):
         """Empty docstring"""
-        debug(True)
         return store.find(SyncedFile, 
                     SyncedFile.ID.is_in(
                          Select(SyncedFile.ID, 
