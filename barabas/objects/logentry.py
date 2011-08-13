@@ -34,7 +34,7 @@ class LogEntry(object):
     
     versionID = Int()
     versionName = Unicode()
-    timeEdited = DateTime()
+    timeEdited = Unicode()
     
     def __init__(self,
                  file,

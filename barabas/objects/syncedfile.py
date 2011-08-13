@@ -99,6 +99,18 @@ class SyncedFile(object):
         """Empty docstring"""
         return [tag.tagName for tag in self.__tags]
     
+    def add_version(self, file_version):
+        """A a version and corresponding log entry to the store"""
+        
+        self.versions.add(file_version)
+        store = Store.of(self)
+        log_entry = LogEntry(file=self,
+                             is_new=True,
+                             version=file_version,
+                             version_name=file_version.name,
+                             time_edited=file_version.timeEdited)
+        store.add(log_entry)
+    
     def add_to_store(self, store):
         """Empty docstring"""
         store.add(self)

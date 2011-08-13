@@ -19,7 +19,7 @@ CREATE TABLE SyncedFileVersion (
 	syncedFileID BIGINT NOT NULL,
 	filePointer VARCHAR(512) NOT NULL,
 	name VARCHAR(256),
-	timeEdited TIMESTAMP NOT NULL,
+	timeEdited VARCHAR(32) NOT NULL,
 	timeStored TIMESTAMP NOT NULL,
 	FOREIGN KEY(syncedFileID) REFERENCES SyncedFile(ID)
 );

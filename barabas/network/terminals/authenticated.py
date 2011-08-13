@@ -42,7 +42,8 @@ class Authenticated(base.Base):
     
     NewVersion = collections.namedtuple('NewVersion', ['synced_file',
                                                        'download_channel',
-                                                        'name'])
+                                                        'name',
+                                                        'time_edited'])
 
     def __init__(self, server, user):
         """Empty docstring"""
@@ -82,7 +83,8 @@ class Authenticated(base.Base):
         new_channel.start()
         new_version = Authenticated.NewVersion(synced_file=synced_file,
                                                download_channel=new_channel,
-                                               name=request['version-name'])
+                                               name=request['version-name'],
+                                               time_edited=request['datetime-edited'])
         commit_id = self.__version_commit_list.append(new_version)
         
         response = {'response': 'requestVersion',
@@ -109,9 +111,9 @@ class Authenticated(base.Base):
         filedata = new_version.download_channel.open()
         synced_file_version = SyncedFileVersion(filedata,
                                                 new_version.name,
-                                                datetime.datetime.now(),
+                                                new_version.time_edited,
                                                 storage_manager)
-        synced_file.versions.add(synced_file_version)
+        synced_file.add_version(synced_file_version)
         self.store.commit() # Make sure the file version is stored
         #TODO: is their a reason we only close the data here?
         filedata.close()
@@ -120,8 +122,7 @@ class Authenticated(base.Base):
                     'response': 'commitVersion',
                     'code': base.Base.OK,
                     'file-id': synced_file.ID,
-                    'version-id': synced_file_version.ID,
-                    'datetime-edited': str(synced_file_version.timeEdited)
+                    'version-id': synced_file_version.ID
                    }
         
         return (response, self)
@@ -213,7 +214,8 @@ class Authenticated(base.Base):
                         'log-id': entry.ID,
                         'id': entry.fileID,
                         'version-id': entry.versionID,
-                        'version-name': entry.versionName
+                        'version-name': entry.versionName,
+                        'version-timeedited': entry.timeEdited
                        }
             return {'type': 'unknown'}
     

@@ -25,7 +25,7 @@ class SyncedFileVersion(object):
     __storm_table__ = "SyncedFileVersion"
     ID = Int(primary = True)
     syncedFileID = Int()
-    timeEdited = DateTime()
+    timeEdited = Unicode()
     timeStored = DateTime()
     filePointer = Unicode()
     name = Unicode()
