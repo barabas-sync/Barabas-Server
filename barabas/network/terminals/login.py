@@ -32,8 +32,7 @@ class Login(base.Base):
             
             pa = store.find(PasswordAuthentication, username = username).one()
             if pa:
-                #TODO: better password shit
-                if True or pa.testPassword(password):
+                if pa.testPassword(password):
                     return ({'response': 'login', 
                              'code': base.Base.OK
                             },
