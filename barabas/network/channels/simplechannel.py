@@ -35,6 +35,7 @@ class Channel(threading.Thread):
     
     def run(self):
         """Empty docstring"""
+        print "Opening channel ", self.port
         self.server = SocketServer.TCPServer((self.__host, self.port), self.handler)
         self.server.channel = self
         self.server.serve_forever()

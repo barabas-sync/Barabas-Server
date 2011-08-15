@@ -29,6 +29,10 @@ class Base():
     def __init__(self, server):
         """Empty docstring"""
         self.server = server
+    
+    def stop(self):
+        print "BASE STOP"
+        pass
 
 class ProtocolException(Exception):
     def __init__(self, code, msg):

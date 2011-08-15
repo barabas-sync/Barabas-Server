@@ -69,6 +69,7 @@ class ProtocolHandler(SocketServer.BaseRequestHandler):
                 if hasattr(self.__terminal, jsonRequest['request']):
                     fnc = getattr(self.__terminal, jsonRequest['request'])
                     (response, self.__terminal) = fnc(jsonRequest)
+                    self.server.get_database_store().commit()
                     self.__send(response)
                 else:
                     raise ProtocolException(terminals.base.Base.METHOD_NOT_ALLOWED, 'Method not allowed')
@@ -79,6 +80,7 @@ class ProtocolHandler(SocketServer.BaseRequestHandler):
                 response['msg'] = ex.msg()
                 response['original-request'] = jsonRequest
                 self.__send(response)
+        self.__terminal.stop()
         print "Closed connection with %s:%s" % self.request.getpeername()
     
     def __send(self, response):

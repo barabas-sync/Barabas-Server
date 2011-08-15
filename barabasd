@@ -39,9 +39,8 @@ class BarabasServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
             host,
             xrange(config.getint('Server', 'data_port_min'),
                    config.getint('Server', 'data_port_max')),
-            barbas.config.get_public_ip(config))
-        self.__channel_manager.start()
-        self.__load_storage_manager(config)
+            barabas.config.get_public_ip(config))
+        self.__storage_manager = barabas.config.load_storage_manager(config)
         SocketServer.TCPServer.__init__(self, (host, port),
                                         ProtocolHandler)
     
@@ -60,6 +59,10 @@ class BarabasServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
     def get_storage_manager(self):
         """Empty docstring"""
         return self.__storage_manager
+    
+    def serve_forever(self):
+        self.__channel_manager.start()
+        SocketServer.TCPServer.serve_forever(self)
     
     def shutdown(self):
         """Empty docstring"""

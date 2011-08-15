@@ -39,6 +39,9 @@ class Authenticated(base.Base):
         def has(self, key):
             """Empty docstring"""
             return key in self.__dict
+        
+        def __iter__(self):
+        	return self.__dict.__iter__()
     
     NewVersion = collections.namedtuple('NewVersion', ['synced_file',
                                                        'download_channel',
@@ -51,6 +54,11 @@ class Authenticated(base.Base):
         self.store = server.get_database_store()
         self.__user = user
         self.__version_commit_list   = Authenticated.IDList()
+
+    def stop(self):
+        for i in self.__version_commit_list:
+            channel = self.__version_commit_list[i].download_channel
+            channel.set_ready()
 
     def newFile(self, request):
         """Empty docstring"""

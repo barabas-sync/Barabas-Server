@@ -56,7 +56,7 @@ CREATE TABLE HistoryLog (
 	-- New version parameters / Version rename
 	versionID BIGINT,
 	versionName VARCHAR(256),
-	timeEdited TIMESTAMP,
+	timeEdited VARCHAR(32),
 
 	FOREIGN KEY (fileID) REFERENCES SyncedFile(ID),
 	FOREIGN KEY (versionID) REFERENCES SyncedFileVersion(ID)
