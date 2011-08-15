@@ -1,0 +1,204 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "Create a Load Balanced Autoscaling instance of Barabas Server.",
+
+  "Parameters" : {
+    "InstanceType" : {
+      "Description" : "Type of EC2 instance to launch",
+      "Type" : "String",
+      "Default" : "t1.micro"
+    },
+    "WebServerPort" : {
+      "Description" : "The TCP port for the Web Server",
+      "Type" : "String",
+      "Default" : "80"
+    },
+    "BarabasServerPort" : {
+      "Description" : "The TCP port for the Barabas Server",
+      "Type" : "String",
+      "Default" : "2188"
+    },
+    "BarabasDataServerPortStart" : {
+      "Description" : "The TCP port for the Barabas Server (Data)",
+      "Type" : "String",
+      "Default" : "50000"
+    },
+    "BarabasDataServerPortEnd" : {
+      "Description" : "The TCP port for the Barabas Server (Data)",
+      "Type" : "String",
+      "Default" : "60000"
+    },
+    "KeyName" : {
+      "Description" : "The Keypair to connect",
+      "Type" : "String"
+    }
+  },
+
+  "Mappings" : {
+    "AWSInstanceType2Arch" : {
+      "t1.micro"    : { "Arch" : "32" },
+      "m1.small"    : { "Arch" : "32" },
+      "m1.large"    : { "Arch" : "32" },
+      "m1.xlarge"   : { "Arch" : "32" },
+      "m2.xlarge"   : { "Arch" : "32" },
+      "m2.2xlarge"  : { "Arch" : "32" },
+      "m2.4xlarge"  : { "Arch" : "32" },
+      "c1.medium"   : { "Arch" : "32" },
+      "c1.xlarge"   : { "Arch" : "32" },
+      "cc1.4xlarge" : { "Arch" : "32" }
+    },
+    "AWSRegionArch2AMI" : {
+      "eu-west-1" : { "32" : "ami-927744e6"}
+    }
+  },
+
+  "Resources" : {
+    "ServerGroup" : {
+      "Type" : "AWS::AutoScaling::AutoScalingGroup",
+      "Properties" : {
+        "AvailabilityZones" : { "Fn::GetAZs" : ""},
+        "LaunchConfigurationName" : { "Ref" : "LaunchConfig" },
+        "MinSize" : "1",
+        "MaxSize" : "3",
+        "LoadBalancerNames" : [ { "Ref" : "ElasticLoadBalancer" } ]
+      }
+   },
+
+    "LaunchConfig" : {
+      "Type" : "AWS::AutoScaling::LaunchConfiguration",
+      "Properties" : {
+        "KeyName" : { "Ref" : "KeyName" },
+        "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
+                                          { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "InstanceType" },
+                                          "Arch" ] } ] },
+        "UserData" : { "Fn::Base64" : { "Ref" : "WebServerPort" }},
+        "SecurityGroups" : [ { "Ref" : "InstanceSecurityGroup" } ],
+        "InstanceType" : { "Ref" : "InstanceType" }
+      }
+    },
+
+    "ServerScaleUpPolicy" : {
+      "Type" : "AWS::AutoScaling::ScalingPolicy",
+      "Properties" : {
+        "AdjustmentType" : "ChangeInCapacity",
+        "AutoScalingGroupName" : { "Ref" : "ServerGroup" },
+        "Cooldown" : "60",
+        "ScalingAdjustment" : "1"
+      }
+    },
+    "ServerScaleDownPolicy" : {
+      "Type" : "AWS::AutoScaling::ScalingPolicy",
+      "Properties" : {
+        "AdjustmentType" : "ChangeInCapacity",
+        "AutoScalingGroupName" : { "Ref" : "ServerGroup" },
+        "Cooldown" : "60",
+        "ScalingAdjustment" : "-1"
+      }
+    },
+
+    "CPUAlarmHigh": {
+     "Type": "AWS::CloudWatch::Alarm",
+     "Properties": {
+        "AlarmDescription": "Scale-up if CPU > 90% for 10 minutes",
+        "MetricName": "CPUUtilization",
+        "Namespace": "AWS/EC2",
+        "Statistic": "Average",
+        "Period": "300",
+        "EvaluationPeriods": "2",
+        "Threshold": "90",
+        "AlarmActions": [ { "Ref": "ServerScaleUpPolicy" } ],
+        "Dimensions": [
+          {
+            "Name": "AutoScalingGroupName",
+            "Value": { "Ref": "ServerGroup" }
+          }
+        ],
+        "ComparisonOperator": "GreaterThanThreshold"
+      }
+    },
+    "CPUAlarmLow": {
+     "Type": "AWS::CloudWatch::Alarm",
+     "Properties": {
+        "AlarmDescription": "Scale-down if CPU < 70% for 10 minutes",
+        "MetricName": "CPUUtilization",
+        "Namespace": "AWS/EC2",
+        "Statistic": "Average",
+        "Period": "300",
+        "EvaluationPeriods": "2",
+        "Threshold": "70",
+        "AlarmActions": [ { "Ref": "ServerScaleDownPolicy" } ],
+        "Dimensions": [
+          {
+            "Name": "AutoScalingGroupName",
+            "Value": { "Ref": "ServerGroup" }
+          }
+        ],
+        "ComparisonOperator": "LessThanThreshold"
+      }
+    },
+
+    "ElasticLoadBalancer" : {
+      "Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
+      "Properties" : {
+        "AvailabilityZones" : { "Fn::GetAZs" : "" },
+        "Listeners" : [ {
+          "LoadBalancerPort" : "80",
+          "InstancePort" : { "Ref" : "WebServerPort" },
+          "Protocol" : "HTTP"
+        }, {
+          "LoadBalancerPort" : "2188",
+          "InstancePort" : { "Ref" : "BarabasServerPort" },
+          "Protocol" : "TCP" }
+        ],
+        "HealthCheck" : {
+          "Target" : { "Fn::Join" : [ "", ["TCP:", { "Ref" : "BarabasServerPort" }]]},
+          "HealthyThreshold" : "3",
+          "UnhealthyThreshold" : "5",
+          "Interval" : "30",
+          "Timeout" : "2"
+        }
+      }
+    },
+
+    "InstanceSecurityGroup" : {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+        "GroupDescription" : "Enable SSH access and HTTP access on the inbound port",
+        "SecurityGroupIngress" : [ {
+          "IpProtocol" : "tcp",
+          "FromPort" : "22",
+          "ToPort" : "22",
+          "CidrIp" : "0.0.0.0/0"
+        },
+        {
+          "IpProtocol" : "tcp",
+          "FromPort" : { "Ref" : "WebServerPort" },
+          "ToPort" : { "Ref" : "WebServerPort" },
+          "SourceSecurityGroupOwnerId" : {"Fn::GetAtt" : ["ElasticLoadBalancer", "SourceSecurityGroup.OwnerAlias"]},
+          "SourceSecurityGroupName" : {"Fn::GetAtt" : ["ElasticLoadBalancer", "SourceSecurityGroup.GroupName"]}
+        },
+        {
+          "IpProtocol" : "tcp",
+          "FromPort" : { "Ref" : "BarabasServerPort" },
+          "ToPort" : { "Ref" : "BarabasServerPort" },
+          "SourceSecurityGroupOwnerId" : {"Fn::GetAtt" : ["ElasticLoadBalancer", "SourceSecurityGroup.OwnerAlias"]},
+          "SourceSecurityGroupName" : {"Fn::GetAtt" : ["ElasticLoadBalancer", "SourceSecurityGroup.GroupName"]}
+        },
+        {
+          "IpProtocol" : "tcp",
+          "FromPort" : { "Ref" : "BarabasDataServerPortStart" },
+          "ToPort" : { "Ref" : "BarabasDataServerPortEnd" },
+          "CidrIp" : "0.0.0.0/0"
+        } ]
+      }
+    }
+  },
+
+  "Outputs" : {
+    "URL" : {
+      "Description" : "The URL of the website",
+      "Value" :  { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "ElasticLoadBalancer", "DNSName" ]}]]}
+    }
+  }
+}
