@@ -85,7 +85,7 @@ class Authenticated(base.Base):
                                       ID=request['file-id'],
                                       owner=self.__user).one()
         if not synced_file:
-            raise ProtocolExceptionotocolException(base.Base.FILE_NOT_FOUND, 'File not found')
+            raise ProtocolException(base.Base.FILE_NOT_FOUND, 'File not found')
         
         new_channel = self.server.get_channel_manager().new_download_channel()
         new_channel.start()
@@ -110,7 +110,7 @@ class Authenticated(base.Base):
         """Empty docstring"""
         commit_id = request['commit-id']
         if not self.__version_commit_list.has(commit_id):
-            raise ProtocolExceptionotocolException(base.Base.BAD_REQUEST, 'Commit ID not valid')
+            raise ProtocolException(base.Base.BAD_REQUEST, 'Commit ID not valid')
         
         
         new_version = self.__version_commit_list.pop(commit_id)
@@ -141,7 +141,7 @@ class Authenticated(base.Base):
                                               ID=request['version-id']).one()
         
         if synced_file_version == None or synced_file_version.syncedfile.owner != self.__user:
-            raise ProtocolExceptionotocolException(base.Base.FILE_NOT_FOUND, 'File not found') 
+            raise ProtocolException(base.Base.FILE_NOT_FOUND, 'File not found') 
             
         file_data = synced_file_version.open(self.server.get_storage_manager())
         new_channel = self.server.get_channel_manager().new_upload_channel(file_data)
@@ -164,7 +164,7 @@ class Authenticated(base.Base):
                                       ID=request['file-id'],
                                       owner=self.__user).one()
         if not synced_file:
-            raise ProtocolExceptionotocolException(base.Base.FILE_NOT_FOUND, 'File not found')
+            raise ProtocolException(base.Base.FILE_NOT_FOUND, 'File not found')
         
         synced_file.tag(request['tag'])
         self.store.commit()
@@ -182,7 +182,7 @@ class Authenticated(base.Base):
                                       ID=request['file-id'],
                                       owner=self.__user).one()
         if not synced_file:
-            raise ProtocolExceptionotocolException(base.Base.FILE_NOT_FOUND, 'File not found')
+            raise ProtocolException(base.Base.FILE_NOT_FOUND, 'File not found')
         
         synced_file.untag(request['tag'])
         self.store.commit()

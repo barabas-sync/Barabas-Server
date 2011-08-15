@@ -20,7 +20,7 @@ import SocketServer
 import json
 import StringIO
 
-from terminals.base import ProtocolException as ProtocolException
+from terminals.base import ProtocolException
 from terminals.handshake import Handshake as HandshakeTerminal
 
 class ProtocolHandler(SocketServer.BaseRequestHandler):
