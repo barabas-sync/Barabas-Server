@@ -22,12 +22,9 @@ import login
 class Handshake(base.Base):
     def handshake(self, request):
         """Empty docstring"""
-        self.__versions = [1, 0]
+        self.__versions = [1]
         self.__loginModules = ['user-password']
-        
-        if (request['protocol'] != 'fst'):
-            raise base.ProtocolException(base.Base.NOT_IMPLEMENTED, 'Protocol not implemented')
-        
+
         serverIndex = 0
         
         while (serverIndex < len(self.__versions) and 

@@ -129,7 +129,6 @@ class Authenticated(base.Base):
         response = {
                     'response': 'commitVersion',
                     'code': base.Base.OK,
-                    'file-id': synced_file.ID,
                     'version-id': synced_file_version.ID
                    }
         
@@ -149,7 +148,6 @@ class Authenticated(base.Base):
         
         response = {'response': 'requestDownload',
                     'code': base.Base.OK,
-                    'commit-id': 0,
                     'channel-info': {
                                      'host': new_channel.connect_ip,
                                      'port': new_channel.port
