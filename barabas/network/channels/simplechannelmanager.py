@@ -20,57 +20,28 @@ import threading
 import time
 import random
 
+from dataserver import DataServer
 from simplechannel import DownloadChannel, UploadChannel
 
 class SimpleChannelManager(threading.Thread):
-    CLEANUP_INTERVAL = 2.0
-
-    def __init__(self, host, port_range, connect_ip):
+    def __init__(self, host, port, connect_ip):
         """Empty docstring"""
-        self.__host = host
-        self.__port_range = port_range
-        self.__connect_ip = connect_ip
-        self.__used_ports = set()
-        self.__running_channels = []
-        self.__running = False
-        print self.__connect_ip
+        self.__server = DataServer(host, port, connect_ip)
+        self.__server_thread = threading.Thread(target=self.__server.serve_forever)
         threading.Thread.__init__(self)
     
     def new_download_channel(self):
         """Empty docstring"""
-        port = self.__find_port()
-        channel = DownloadChannel(self.__host, port, self.__connect_ip)
-        self.__running_channels.append(channel)
-        return channel
+        return self.__server.open_channel(DownloadChannel())
     
     def new_upload_channel(self, file_data):
         """Empty docstring"""
-        port = self.__find_port()
-        channel = UploadChannel(self.__host, port, self.__connect_ip, file_data)
-        self.__running_channels.append(channel)
-        return channel
+        return self.__server.open_channel(UploadChannel(file_data))
     
     def stop(self):
         """Empty docstring"""
-        self.__running = False
+        self.__server.shutdown()
     
     def run(self):
         """Empty docstring"""
-        self.__running = True
-        while self.__running:
-            for channel in self.__running_channels:
-                if channel.is_ready():
-                    channel.stop()
-                    self.__used_ports.discard(channel.port)
-                    self.__running_channels.remove(channel)
-                    print "Stopped %s" % (channel.port, )
-            time.sleep(SimpleChannelManager.CLEANUP_INTERVAL)
-    
-    def __find_port(self):
-        """Empty docstring"""
-        port = random.choice(self.__port_range)
-        while port in self.__used_ports:
-            port = random.choice(self.__port_range)
-        
-        self.__used_ports.add(port)
-        return port
+        self.__server_thread.start()

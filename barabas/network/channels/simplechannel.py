@@ -20,86 +20,44 @@ import threading
 import SocketServer
 import tempfile
 
-class Channel(threading.Thread):
-    def __init__(self, host, port, connect_ip):
-        """Empty docstring"""
-        self.__host = host
-        self.port = port
-        self.connect_ip = connect_ip
-        self.__ready = False
-        threading.Thread.__init__(self)
-    
-    def port(self):
-        """Empty docstring"""
-        return self.__port    
-    
-    def run(self):
-        """Empty docstring"""
-        print "Opening channel ", self.port
-        self.server = SocketServer.TCPServer((self.__host, self.port), self.handler)
-        self.server.channel = self
-        self.server.serve_forever()
-    
-    def set_ready(self):
-        """Empty docstring"""
-        self.__ready = True
-    
-    def is_ready(self):
-        """Empty docstring"""
-        return self.__ready
-    
-    def stop(self):
-        """Empty docstring"""
-        self.server.shutdown()
 
+class DownloadChannel():
+    def __init__(self):
+        """Constructor"""
+        self.file = tempfile.TemporaryFile()
+        self.fileLock = threading.Lock()
 
-class DownloadChannel(Channel):
-    def __init__(self, host, port, connect_ip):
-        """Empty docstring"""
-        Channel.__init__(self, host, port, connect_ip)
-        self.handler = DownloadChannel.Handler
-    
-    def open(self):
-        """Empty docstring"""
-        return self.current_handler.read()
-    
-    class Handler(SocketServer.BaseRequestHandler):
-        def setup(self):
-            """Empty docstring"""
-            self.server.channel.current_handler = self
-            self.file = tempfile.TemporaryFile()
-            self.fileLock = threading.RLock()
+    def execute(self, socket):
+        """ Execute what has to be done in the channel.
+            Reads information from the socket and store it in a temporary file.
+        """
+        try:
             self.fileLock.acquire()
-
-        def handle(self):
-            """Empty docstring"""
-            buf = self.request.recv(1024)
+            buf = socket.recv(1024)
             while buf:
                 self.file.write(buf)
-                buf = self.request.recv(1024)
+                buf = socket.recv(1024)
+        finally:
             self.fileLock.release()
-            self.server.channel.set_ready()
 
-        def read(self):
-            """Empty docstring"""
+    def open(self):
+        """Open the downloaded file. Once closed the file will be deleted."""
+        try:
             self.fileLock.acquire()
             self.file.seek(0)
-            self.fileLock.release()
             return self.file
+        finally:
+            self.fileLock.release()
 
-class UploadChannel(Channel):
-    def __init__(self, host, port, connect_ip, transfer_file):
-        """Empty docstring"""
-        Channel.__init__(self, host, port, connect_ip)
-        self.handler = UploadChannel.Handler
+class UploadChannel():
+    def __init__(self, transfer_file):
+        """Constructor"""
         self.transfer_file = transfer_file
     
-    class Handler(SocketServer.BaseRequestHandler):
-        def handle(self):
-            """Empty docstring"""
-            buf = self.server.channel.transfer_file.read(1024)
-            while buf:
-                self.request.send(buf)
-                buf = self.server.channel.transfer_file.read(1024)
-            self.server.channel.set_ready()
+    def execute(self, socket):
+        """Execute the upload. Reads data from the channel and send it."""
+        buf = self.transfer_file.read(1024)
+        while buf:
+            socket.send(buf)
+            buf = self.transfer_file.read(1024)
 

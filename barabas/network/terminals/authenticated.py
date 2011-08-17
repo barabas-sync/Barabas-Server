@@ -44,7 +44,7 @@ class Authenticated(base.Base):
         	return self.__dict.__iter__()
     
     NewVersion = collections.namedtuple('NewVersion', ['synced_file',
-                                                       'download_channel',
+                                                       'download_handler',
                                                         'name',
                                                         'time_edited'])
 
@@ -54,11 +54,6 @@ class Authenticated(base.Base):
         self.store = server.get_database_store()
         self.__user = user
         self.__version_commit_list   = Authenticated.IDList()
-
-    def stop(self):
-        for i in self.__version_commit_list:
-            channel = self.__version_commit_list[i].download_channel
-            channel.set_ready()
 
     def newFile(self, request):
         """Empty docstring"""
@@ -87,10 +82,9 @@ class Authenticated(base.Base):
         if not synced_file:
             raise ProtocolException(base.Base.FILE_NOT_FOUND, 'File not found')
         
-        new_channel = self.server.get_channel_manager().new_download_channel()
-        new_channel.start()
+        new_channel, chandler = self.server.get_channel_manager().new_download_channel()
         new_version = Authenticated.NewVersion(synced_file=synced_file,
-                                               download_channel=new_channel,
+                                               download_handler=chandler,
                                                name=request['version-name'],
                                                time_edited=request['datetime-edited'])
         commit_id = self.__version_commit_list.append(new_version)
@@ -100,7 +94,8 @@ class Authenticated(base.Base):
                     'commit-id': commit_id,
                     'channel-info': {
                                      'host': new_channel.connect_ip,
-                                     'port': new_channel.port
+                                     'port': new_channel.port,
+                                     'secret': new_channel.secret
                                     }
                    }
     
@@ -116,7 +111,7 @@ class Authenticated(base.Base):
         new_version = self.__version_commit_list.pop(commit_id)
         storage_manager = self.server.get_storage_manager()
         synced_file = new_version.synced_file
-        filedata = new_version.download_channel.open()
+        filedata = new_version.download_handler.open()
         synced_file_version = SyncedFileVersion(filedata,
                                                 new_version.name,
                                                 new_version.time_edited,
@@ -143,14 +138,14 @@ class Authenticated(base.Base):
             raise ProtocolException(base.Base.FILE_NOT_FOUND, 'File not found') 
             
         file_data = synced_file_version.open(self.server.get_storage_manager())
-        new_channel = self.server.get_channel_manager().new_upload_channel(file_data)
-        new_channel.start()
+        new_channel, channel_handler = self.server.get_channel_manager().new_upload_channel(file_data)
         
         response = {'response': 'requestDownload',
                     'code': base.Base.OK,
                     'channel-info': {
                                      'host': new_channel.connect_ip,
-                                     'port': new_channel.port
+                                     'port': new_channel.port,
+                                     'secret': new_channel.secret
                                     }
                    }
     

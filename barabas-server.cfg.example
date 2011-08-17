@@ -30,8 +30,7 @@ path=datafiles/
 [Server]
 listen_address=0.0.0.0
 listen_port=2188
-data_port_min=50000
-data_port_max=50010
+data_port=2189
 
 public_ip=127.0.0.1
 ; For hosts running on Amazon EC2: (comment previous line)
