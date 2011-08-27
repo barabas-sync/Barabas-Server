@@ -21,13 +21,17 @@ import json
 import StringIO
 
 from terminals.base import ProtocolException
+from terminals.base import Base as BaseTerminal
 from terminals.handshake import Handshake as HandshakeTerminal
 
 class ProtocolHandler(SocketServer.BaseRequestHandler):
+    def __init__(self, start_terminal=HandshakeTerminal):
+        self.__start_terminal = start_terminal
+
     def handle(self):
         """Empty docstring"""
         print "Opened connection with %s" % str(self.request.getpeername())
-        self.__terminal = HandshakeTerminal(self.server)
+        self.__terminal = self.__start_terminal(self.server)
         self.__running = True
         bfr = ""
         while self.__running:
@@ -57,8 +61,9 @@ class ProtocolHandler(SocketServer.BaseRequestHandler):
                     msgString.close()
                     response = {}
                     response['response'] = 'error'
-                    response['code'] = base.Base.BAD_REQUEST
+                    response['code'] = BaseTerminal.BAD_REQUEST
                     response['msg'] = 'Invalid request'
+                    response['original-request'] = msg
                     self.__send(response)
                     continue
             except Exception, e:
@@ -66,13 +71,22 @@ class ProtocolHandler(SocketServer.BaseRequestHandler):
                 self.__running = False
             
             try:
+                if ('request' not in jsonRequest):
+                    raise ProtocolException(BaseTerminal.BAD_REQUEST,
+                                            'Missing request')
+            
                 if hasattr(self.__terminal, jsonRequest['request']):
                     fnc = getattr(self.__terminal, jsonRequest['request'])
                     (response, self.__terminal) = fnc(jsonRequest)
                     self.server.get_database_store().commit()
                     self.__send(response)
                 else:
-                    raise ProtocolException(terminals.base.Base.METHOD_NOT_ALLOWED, 'Method not allowed')
+                    response = {}
+                    response['response'] = jsonRequest['request']
+                    response['code'] = BaseTerminal.METHOD_NOT_ALLOWED
+                    response['msg'] = 'Method not allowed'
+                    response['original-request'] = jsonRequest
+                    self.__send(response)
             except ProtocolException, ex:
                 response = {}
                 response['response'] = 'error'
