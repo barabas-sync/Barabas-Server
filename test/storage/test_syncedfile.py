@@ -1,8 +1,9 @@
+# vim: set expandtab set ts=4 tw=4
+
 import unittest
-import datetime
 import io
 
-import barabas.database.sqldatabase
+from barabas.database.sqldatabase import create_sqlite_use_only_for_tests
 from barabas.identity.user import User
 from barabas.objects.syncedfile import SyncedFile
 from barabas.objects.syncedfileversion import SyncedFileVersion
@@ -12,27 +13,27 @@ import mocks.storage
 class TestSyncedFile(unittest.TestCase):
     def setUp(self):
         """Empty docstring"""
-        self.__database = barabas.database.sqldatabase.create_sqlite_use_only_for_tests().new_store()
+        self.__database = create_sqlite_use_only_for_tests().new_store()
         self.__database.install('deploy/sqlite/latest.sql')
-        self.__fileManager = mocks.storage.StringIOStorage()
-        self.__storage = self.__fileManager
+        self.__storage = mocks.storage.StringIOStorage()
         self.__user1 = User(u'Nathan', u'Samson', u'email@ameil.com')
         self.__user2 = User(u'Other', u'User', u'email2@email.com')
 
-	def tearDown(self):
-		"""Empty docstring"""
-		self.__database.close()        
-    
-    def testCreate(self):
+    def tearDown(self):
         """Empty docstring"""
-        file = SyncedFile("afilename.txt", self.__user1)
-        self.assertEqual("afilename.txt", file.fileName)
-        self.__database.add(file)
+        self.__database.close()        
 
-        sf = self.__database.find(SyncedFile, SyncedFile.fileName == u"afilename.txt").one()
+    def test_create(self):
+        """Empty docstring"""
+        a_file = SyncedFile("afilename.txt", self.__user1)
+        self.assertEqual("afilename.txt", a_file.fileName)
+        self.__database.add(a_file)
+
+        sf = self.__database.find(SyncedFile,
+                SyncedFile.fileName == u"afilename.txt").one()
         self.assertEqual(sf.owner, self.__user1)
         
-    def testCreateNameCollision(self):
+    def test_create_name_collision(self):
         """Empty docstring"""
         file1 = SyncedFile("readme.txt", self.__user1) # Readme for project X
         self.__database.add(file1)
@@ -45,7 +46,7 @@ class TestSyncedFile(unittest.TestCase):
         
         self.assertNotEqual(file1.ID, file2.ID)
     
-    def testTag(self):
+    def test_tag(self):
         """Empty docstring"""
         file1 = SyncedFile("someFunnyFile.png", self.__user1)
         self.__database.add(file1)
@@ -53,21 +54,22 @@ class TestSyncedFile(unittest.TestCase):
         file1.tag("Cartoon")
         file1.tag("Funny")
         
-        file1Copy = self.__database.find(SyncedFile, SyncedFile.fileName == u'someFunnyFile.png').one()
-        tags = file1Copy.tags()
+        file1_copy = self.__database.find(SyncedFile,
+                SyncedFile.fileName == u'someFunnyFile.png').one()
+        tags = file1_copy.tags()
 
         self.assertTrue("Cartoon" in tags)
         self.assertTrue("Funny" in tags)
         
-        file1Copy.tag("Humour")
-        self.assertTrue("Humour" in file1Copy.tags())
+        file1_copy.tag("Humour")
+        self.assertTrue("Humour" in file1_copy.tags())
     
-    def testTagBeforeSave(self):
+    def test_tag_before_save(self):
         """Empty docstring"""
         file1 = SyncedFile("someFile.png", self.__user1)
         file1.tag("Some-Tag")
     
-    def testUntag(self):
+    def test_untag(self):
         """Empty docstring"""
         file1 = SyncedFile("someFile", self.__user1)
         self.__database.add(file1)
@@ -78,143 +80,152 @@ class TestSyncedFile(unittest.TestCase):
         file1.untag("Some-Tag")
         self.assertEquals([], file1.tags())
     
-    def testUntagTwice(self):
+    def test_untag_twice(self):
         """Empty docstring"""
-        (aFile, bFile) = self._insertCommonData()
+        (file_a, file_b) = self._insert_common_data()
         
-        aFile.untag("Work")
-        aFile.untag("Work")
-        self.assertEquals(["Project X", "TODO"], aFile.tags())
-        self.assertEquals(["Work"], bFile.tags())
+        file_a.untag("Work")
+        file_a.untag("Work")
+        self.assertEquals(["Project X", "TODO"], file_a.tags())
+        self.assertEquals(["Work"], file_b.tags())
     
-    def testTagTwice(self):
+    def test_tag_twice(self):
         """Empty docstring"""
-        (aFile, bFile) = self._insertCommonData()
-        aFile.tag("Work")
+        (file_a, file_b) = self._insert_common_data()
+        file_a.tag("Work")
         
-        self.assertEquals(["Project X", "TODO", "Work"], aFile.tags())
-        self.assertEquals(["Work"], bFile.tags())
+        self.assertEquals(["Project X", "TODO", "Work"], file_a.tags())
+        self.assertEquals(["Work"], file_b.tags())
 
-    def testFindFilesWithOneTag(self):
+    def test_find_files_with_one_tag(self):
         """Empty docstring"""
-        self._insertCommonData()
+        self._insert_common_data()
         
-        fileNames = [sf.fileName for sf in SyncedFile.findWithTags(self.__database, self.__user1, (u"Work", ))]
-        fileNames.sort()
-        self.assertEqual([u"aFileName", u"bFileName"], fileNames)
+        file_names = [sf.fileName for sf in
+                SyncedFile.findWithTags(self.__database,
+                                        self.__user1, (u"Work", ))]
+        file_names.sort()
+        self.assertEqual([u"aFileName", u"bFileName"], file_names)
     
-    def testFindFilesWithMoreTags(self):
+    def test_find_files_with_more_tags(self):
         """Empty docstring"""
-        self._insertCommonData()
+        self._insert_common_data()
         
-        fileNames = [sf.fileName for sf in SyncedFile.findWithTags(self.__database, self.__user1, (u"Work", u"Project X"))]
-        fileNames.sort()
-        self.assertEqual(["aFileName"], fileNames)
+        file_names = [sf.fileName for sf in
+                SyncedFile.findWithTags(self.__database,
+                                        self.__user1, (u"Work", u"Project X"))]
+        file_names.sort()
+        self.assertEqual(["aFileName"], file_names)
     
-    def testFindFilesWithTags(self):
+    def test_find_files_with_tags(self):
         """Empty docstring"""
-        self._insertCommonData()
+        self._insert_common_data()
         
-        fileNames = [sf.fileName for sf in SyncedFile.findWithTags(self.__database, self.__user1, (u"TODO", u"Project X"))]
-        fileNames.sort()
-        self.assertEqual(["aFileName"], fileNames)
+        file_names = [sf.fileName for sf in
+                SyncedFile.findWithTags(self.__database,
+                                        self.__user1, (u"TODO", u"Project X"))]
+        file_names.sort()
+        self.assertEqual(["aFileName"], file_names)
     
-    def testVersions(self):
+    def test_versions(self):
         """Empty docstring"""
         file1 = SyncedFile("versionedfile", self.__user1)
         self.__database.add(file1)
         
         self.assertEquals(0, file1.versions.count())
         
-        inputFile = io.StringIO(u"This is the first version of the file")
-        fileVersion = SyncedFileVersion(inputFile, u"Some Versions Name", 
+        input_file = io.StringIO(u"This is the first version of the file")
+        file_version = SyncedFileVersion(input_file, u"Some Versions Name", 
                                         u"2009-10-11T12:13:14",
                                         self.__storage)
-        file1.versions.add(fileVersion)
+        file1.versions.add(file_version)
         self.__database.flush()
-        inputFile.close()
+        input_file.close()
         
-        firstVersion = file1.versions.order_by(barabas.objects.syncedfileversion.SyncedFileVersion.timeEdited).one()
+        versions = file1.versions.order_by(SyncedFileVersion.timeEdited)
+        first_version = versions.one()
         
-        self.assertEqual(firstVersion.timeEdited, u"2009-10-11T12:13:14")
+        self.assertEqual(first_version.timeEdited, u"2009-10-11T12:13:14")
         # TODO: use this test with python 3.2?
-        #self.assertLessEqual((datetime.datetime.now() - firstVersion.timeStored()).total_seconds(), 2)
+        #self.assertLessEqual((datetime.datetime.now() - 
+        #       first_version.timeStored()).total_seconds(), 2)
         
-        filed = firstVersion.open(self.__fileManager)
+        filed = first_version.open(self.__storage)
         self.assertEqual("This is the first version of the file", filed.read())
         filed.close()
         
-        inputFile = io.StringIO(u"This is the second version of the file")
-        fileVersion = SyncedFileVersion(inputFile, u"Some Other Versions Name", 
+        input_file = io.StringIO(u"This is the second version of the file")
+        file_version = SyncedFileVersion(input_file, u"Some Other Name", 
                                         u"2009-10-11T13:13:14",
                                         self.__storage)
-        file1.versions.add(fileVersion)
+        file1.versions.add(file_version)
         self.__database.flush()
-        inputFile.close()
+        input_file.close()
         
-        (firstVersion, secondVersion) = file1.versions.order_by(barabas.objects.syncedfileversion.SyncedFileVersion.timeEdited)
-        filed = secondVersion.open(self.__fileManager)
+        (first_version, second_version) = \
+                file1.versions.order_by(SyncedFileVersion.timeEdited)
+        filed = second_version.open(self.__storage)
         self.assertEqual("This is the second version of the file", filed.read())
         filed.close()
         
-        filed = firstVersion.open(self.__fileManager)
+        filed = first_version.open(self.__storage)
         self.assertEqual("This is the first version of the file", filed.read())
         filed.close()
         
         
-    def testStoreFile(self):
+    def test_store_file(self):
         """Empty docstring"""
-        syncedFile = SyncedFile("aFileName", self.__user1)
-        self.__database.add(syncedFile)
+        synced_file = SyncedFile("aFileName", self.__user1)
+        self.__database.add(synced_file)
         self.__database.flush()
         
-        inputFile = io.StringIO(u"Some String IO")
-        version1 = SyncedFileVersion(inputFile, u"Some Versions Name",
+        input_file = io.StringIO(u"Some String IO")
+        version1 = SyncedFileVersion(input_file, u"Some Versions Name",
                                      u"1911-11-11T11:11:11", self.__storage)
-        syncedFile.versions.add(version1)
+        synced_file.versions.add(version1)
         self.__database.flush()
-        inputFile.close()
+        input_file.close()
         
-        inputFile2 = io.StringIO(u"Some Other String IO")
-        version2 = SyncedFileVersion(inputFile2, u"Some Other Versions Name", 
+        input_file2 = io.StringIO(u"Some Other String IO")
+        version2 = SyncedFileVersion(input_file2, u"Some Other Versions Name", 
                                      u"2000-11-11T11:11:11", self.__storage)
-        syncedFile.versions.add(version2)
+        synced_file.versions.add(version2)
         self.__database.flush()
-        inputFile2.close()
+        input_file2.close()
         
-        (version1X, version2X) = syncedFile.versions
+        (version_1x, version_2x) = synced_file.versions
         
-        self.assertEqual(version1X.timeEdited, version1.timeEdited)
-        self.assertEqual(version1X.timeStored, version1.timeStored)
-        self.assertEqual(version1X.ID, version1.ID)
-        self.assertEqual(version1X.filePointer, version1.filePointer)
-        filedata = version1X.open(self.__fileManager)
+        self.assertEqual(version_1x.timeEdited, version1.timeEdited)
+        self.assertEqual(version_1x.timeStored, version1.timeStored)
+        self.assertEqual(version_1x.ID, version1.ID)
+        self.assertEqual(version_1x.filePointer, version1.filePointer)
+        filedata = version_1x.open(self.__storage)
         self.assertEqual("Some String IO", filedata.read())
         filedata.close()
         
-        self.assertNotEqual(version1X.ID, version2X.ID)        
+        self.assertNotEqual(version_1x.ID, version_2x.ID)        
     
-    def _insertCommonData(self):
+    def _insert_common_data(self):
         """Empty docstring"""
-        aFile = SyncedFile("aFileName", self.__user1)
-        self.__database.add(aFile)
+        file_a = SyncedFile("aFileName", self.__user1)
+        self.__database.add(file_a)
 
-        bFile = SyncedFile("bFileName", self.__user1)
-        self.__database.add(bFile)
+        file_b = SyncedFile("bFileName", self.__user1)
+        self.__database.add(file_b)
         
-        cFile = SyncedFile("cFileName", self.__user2)
-        self.__database.add(cFile)
+        file_c = SyncedFile("cFileName", self.__user2)
+        self.__database.add(file_c)
 
-        aFile.tag(u"TODO")
-        aFile.tag(u"Work")
-        aFile.tag(u"Project X")
+        file_a.tag(u"TODO")
+        file_a.tag(u"Work")
+        file_a.tag(u"Project X")
 
-        bFile.tag(u"Work")
+        file_b.tag(u"Work")
         
-        cFile.tag(u"TODO")
-        cFile.tag(u"Project X")
+        file_c.tag(u"TODO")
+        file_c.tag(u"Project X")
 
-        return (aFile, bFile)
+        return (file_a, file_b)
 
 if __name__ == '__main__':
     unittest.main()
