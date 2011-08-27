@@ -45,3 +45,6 @@ def create_mysql(host, name, username, password, port = 3306):
     """Create a MySQL Database Connection"""
     args = (username, password, host, port, name)
     return SQLDatabase(create_database('mysql://%s:%s@%s:%s/%s' % args))
+
+def create_sqlite_use_only_for_tests():
+    return SQLDatabase(create_database('sqlite:'))

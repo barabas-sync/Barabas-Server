@@ -1,8 +1,9 @@
 import unittest
-import server.database.sqlitedatabase
 
-from server.identity.passwordauth import PasswordAuthentication
-from server.identity.user import User
+import barabas.database.sqldatabase
+
+from barabas.identity.passwordauthentication import PasswordAuthentication
+from barabas.identity.user import User
 
 class TestPasswordAuth(unittest.TestCase):
     def testStorePasswordAuth(self):
@@ -109,9 +110,8 @@ class TestPasswordAuth(unittest.TestCase):
     
     def setUp(self):
         """Empty docstring"""
-        self.__database = server.database.sqlitedatabase.SQLiteDatabase(":memory:")
-        self.__database.install('server/database/sql/sqlite/v1.sql')
-        self.__database.install('server/database/sql/sqlite/v2.sql')
+        self.__database = barabas.database.sqldatabase.create_sqlite_use_only_for_tests().new_store()
+        self.__database.install('deploy/sqlite/latest.sql')
         self.__user = User(u'Nathan', u'Samson', u'anemail@company.com')
     
     def tearDown(self):

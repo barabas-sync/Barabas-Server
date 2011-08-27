@@ -28,8 +28,8 @@ class Authenticated(base.Base):
             """Empty docstring"""
             value = self.__dict[key]
             del self.__dict[key]
-            if key < self.__currentSmallestFree:
-                self.__currentSmallestFree = key
+            #if key < self.__currentSmallestFree:
+            #    self.__currentSmallestFree = key
             return value
         
         def __getitem__(self, key):

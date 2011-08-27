@@ -26,6 +26,7 @@ class DataServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
 
     class DataHandler(SocketServer.BaseRequestHandler):
         def handle(self):
+            print "OPENING CHANNEL (and so a THREAD)"
             secret_key = ""
             verified = False
             while len(secret_key) < DataServer.SECRET_KEY_LENGTH:
@@ -36,6 +37,7 @@ class DataServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
             channel = self.server.get_channel(secret_key)
             if channel != None:
                 channel.execute(self.request)
+            print "CLOSING CHANNEL (and so a THREAD)"
                 
 
     class ChannelInfo:

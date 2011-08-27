@@ -1,7 +1,8 @@
 import unittest
-import server.database.sqlitedatabase
 
-from server.identity.user import User
+import barabas.database.sqldatabase
+
+from barabas.identity.user import User
 
 class TestUser(unittest.TestCase):
     def testCreateUser(self):
@@ -46,6 +47,15 @@ class TestUser(unittest.TestCase):
         #self.assertLessEqual((user.lastLoginDate() - datetime.datetime.now).total_seconds(), 2)
     
         self.assertNotEquals(None, user.lastLoginTime())
+
+    def setUp(self):
+        """Empty docstring"""
+        self.__database = barabas.database.sqldatabase.create_sqlite_use_only_for_tests().new_store()
+        self.__database.install('deploy/sqlite/latest.sql')
+
+    def tearDown(self):
+        """Empty docstring"""
+        self.__database.close()
 
 if __name__ == '__main__':
     unittest.main()

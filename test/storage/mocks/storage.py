@@ -1,16 +1,12 @@
 import io
 import hashlib
 
-import server.storage.fileversion
+from barabas.objects.syncedfileversion import SyncedFileVersion
 
 class StringIOStorage:
     def __init__(self):
         """Empty docstring"""
         self.__strings = {}
-
-    def create(self, inputFile, editTime):
-        """Empty docstring"""
-        return server.storage.fileversion.FileVersion(inputFile, editTime, self)
     
     def save(self, inputFile):
         """Empty docstring"""

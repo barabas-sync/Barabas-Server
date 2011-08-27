@@ -1,26 +1,27 @@
 import unittest
 import datetime
 import io
-import storm.locals
 
-from server.identity.user import User
-from server.storage.syncedfile import SyncedFile
-import server.test.storage.mocks.storage
-from server.storage.errors import NotSavedError
+import barabas.database.sqldatabase
+from barabas.identity.user import User
+from barabas.objects.syncedfile import SyncedFile
+from barabas.objects.syncedfileversion import SyncedFileVersion
+
+import mocks.storage
 
 class TestSyncedFile(unittest.TestCase):
     def setUp(self):
         """Empty docstring"""
-        self.__database = server.database.sqlitedatabase.SQLiteDatabase(":memory:")
-        self.__database.install('server/database/sql/sqlite/v1.sql')
-        self.__database.install('server/database/sql/sqlite/v2.sql')
-        self.__fileManager = server.test.storage.mocks.storage.StringIOStorage()
+        self.__database = barabas.database.sqldatabase.create_sqlite_use_only_for_tests().new_store()
+        self.__database.install('deploy/sqlite/latest.sql')
+        self.__fileManager = mocks.storage.StringIOStorage()
+        self.__storage = self.__fileManager
         self.__user1 = User(u'Nathan', u'Samson', u'email@ameil.com')
         self.__user2 = User(u'Other', u'User', u'email2@email.com')
-    
-    def tearDown(self):
-        """Empty docstring"""
-        self.__database.close()    
+
+	def tearDown(self):
+		"""Empty docstring"""
+		self.__database.close()        
     
     def testCreate(self):
         """Empty docstring"""
@@ -125,16 +126,17 @@ class TestSyncedFile(unittest.TestCase):
         
         self.assertEquals(0, file1.versions.count())
         
-        editTime = datetime.datetime(2009, 10,11, 12, 13, 14)
-        inputFile = io.StringIO("This is the first version of the file")
-        fileVersion = self.__fileManager.create(inputFile, editTime)
+        inputFile = io.StringIO(u"This is the first version of the file")
+        fileVersion = SyncedFileVersion(inputFile, u"Some Versions Name", 
+                                        u"2009-10-11T12:13:14",
+                                        self.__storage)
         file1.versions.add(fileVersion)
         self.__database.flush()
         inputFile.close()
         
-        firstVersion = file1.versions.order_by(server.storage.fileversion.FileVersion.timeEdited).first()
+        firstVersion = file1.versions.order_by(barabas.objects.syncedfileversion.SyncedFileVersion.timeEdited).one()
         
-        self.assertEqual(firstVersion.timeEdited, editTime)
+        self.assertEqual(firstVersion.timeEdited, u"2009-10-11T12:13:14")
         # TODO: use this test with python 3.2?
         #self.assertLessEqual((datetime.datetime.now() - firstVersion.timeStored()).total_seconds(), 2)
         
@@ -142,13 +144,15 @@ class TestSyncedFile(unittest.TestCase):
         self.assertEqual("This is the first version of the file", filed.read())
         filed.close()
         
-        inputFile = io.StringIO("This is the second version of the file")
-        fileVersion = self.__fileManager.create(inputFile, editTime)
+        inputFile = io.StringIO(u"This is the second version of the file")
+        fileVersion = SyncedFileVersion(inputFile, u"Some Other Versions Name", 
+                                        u"2009-10-11T13:13:14",
+                                        self.__storage)
         file1.versions.add(fileVersion)
         self.__database.flush()
         inputFile.close()
         
-        (firstVersion, secondVersion) = file1.versions.order_by(server.storage.fileversion.FileVersion.timeEdited)
+        (firstVersion, secondVersion) = file1.versions.order_by(barabas.objects.syncedfileversion.SyncedFileVersion.timeEdited)
         filed = secondVersion.open(self.__fileManager)
         self.assertEqual("This is the second version of the file", filed.read())
         filed.close()
@@ -164,16 +168,16 @@ class TestSyncedFile(unittest.TestCase):
         self.__database.add(syncedFile)
         self.__database.flush()
         
-        editTime = datetime.datetime(1911, 11, 11, 11, 11, 11)
-        inputFile = io.StringIO("Some String IO")
-        version1 = self.__fileManager.create(inputFile, editTime)
+        inputFile = io.StringIO(u"Some String IO")
+        version1 = SyncedFileVersion(inputFile, u"Some Versions Name",
+                                     u"1911-11-11T11:11:11", self.__storage)
         syncedFile.versions.add(version1)
         self.__database.flush()
         inputFile.close()
         
-        inputFile2 = io.StringIO("Some Other String IO")
-        editTime2 = datetime.datetime(2000, 11, 11, 11, 11, 11)
-        version2 = self.__fileManager.create(inputFile2, editTime2)
+        inputFile2 = io.StringIO(u"Some Other String IO")
+        version2 = SyncedFileVersion(inputFile2, u"Some Other Versions Name", 
+                                     u"2000-11-11T11:11:11", self.__storage)
         syncedFile.versions.add(version2)
         self.__database.flush()
         inputFile2.close()
