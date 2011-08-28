@@ -28,7 +28,7 @@ class Handshake(base.Base):
         serverIndex = 0
         
         while (serverIndex < len(self.__versions) and 
-               self.__versions[serverIndex] > request['version']):
+               self.__versions[serverIndex] != request['version']):
             serverIndex += 1
         
         if serverIndex >= len(self.__versions):

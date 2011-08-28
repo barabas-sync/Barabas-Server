@@ -12,7 +12,7 @@ class _MockStore():
 class MockServer():
     """Mock server class"""
     
-    def __init__(self, name):
+    def __init__(self, name=""):
         """Constructor"""
         self.__name = name
     
