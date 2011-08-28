@@ -31,6 +31,10 @@ class ProtocolHandler(SocketServer.BaseRequestHandler):
        correct terminal. The terminal formulates an answer and
        the protocol handler sends it back to the client.
     """
+    #pylint:disable-msg=W0201
+    # The warnings is about not defining self.__X variables in __init__
+    # Overriding __init__ for this class seems to be a bad idea, so we
+    # define them in the setup() method.
 
     start_terminal = HandshakeTerminal
 
