@@ -16,7 +16,7 @@ class TestProtocolHandler(unittest.TestCase):
     def setUp(self):
         """Set up the testcase"""
         self.__request = MockRequest()
-        self.__server = MockServer('A Server Name')
+        self.__server = MockServer(name='A Server Name')
         ProtocolHandler.start_terminal = MockTerminal
         self.__protocol_handler = ProtocolHandler(self.__request,
                                                   self.__request.getpeername(),

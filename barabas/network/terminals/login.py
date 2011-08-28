@@ -22,12 +22,17 @@ import authenticated
 from ...identity.passwordauthentication import PasswordAuthentication
 
 class Login(base.Base):
+    def __init__(self, server,
+                 authenticated_terminal=authenticated.Authenticated):
+        base.Base.__init__(self, server)
+        self.__authenticated_terminal = authenticated_terminal
+
     def login(self, request):
         """Empty docstring"""
         store = self.server.get_database_store()
     
         if request['login-module'] == 'user-password':
-            username = request['module-info']['username']
+            username = unicode(request['module-info']['username'])
             password = request['module-info']['password']
             
             pa = store.find(PasswordAuthentication, username = username).one()
@@ -36,7 +41,7 @@ class Login(base.Base):
                     return ({'response': 'login', 
                              'code': base.Base.OK
                             },
-                            authenticated.Authenticated(self.server, pa.user)
+                            self.__authenticated_terminal(self.server, pa.user)
                            )
                 else:
                     return ({'response': 'login',
@@ -54,7 +59,8 @@ class Login(base.Base):
                        )
         else:
             return ({'response': 'login', 
-                     'code': base.Base.METHOD_NOT_ALLOWED
+                     'code': base.Base.METHOD_NOT_ALLOWED,
+                     'msg': 'Login module not supported'
                     },
                     self
                    )

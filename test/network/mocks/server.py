@@ -12,9 +12,12 @@ class _MockStore():
 class MockServer():
     """Mock server class"""
     
-    def __init__(self, name=""):
+    def __init__(self, name="", store=None):
         """Constructor"""
         self.__name = name
+        if store == None:
+            store = _MockStore()
+        self.__store = store
     
     def name(self):
         """Returns the name of the server"""
@@ -22,4 +25,4 @@ class MockServer():
     
     def get_database_store(self):
         """" Returns the database store. """
-        return _MockStore()
+        return self.__store
