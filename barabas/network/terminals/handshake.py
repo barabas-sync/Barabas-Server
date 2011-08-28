@@ -16,31 +16,43 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Barabas Server.  If not, see <http://www.gnu.org/licenses/>.
 
-import base
-import login
+"""Handshake terminal class"""
+
+import barabas.network.terminals.base as base
+import barabas.network.terminals.login as login
 
 class Handshake(base.Base):
-    def handshake(self, request):
-        """Empty docstring"""
+    """Handhsake terminal"""
+    def __init__(self, server):
+        """Constructor"""
+        base.Base.__init__(self, server)
+        self.__supported_versions = [1]
         self.__versions = [1]
-        self.__loginModules = ['user-password']
+        self.__supported_login_modules = ['user-password']
 
-        serverIndex = 0
+    def handshake(self, request):
+        """Response for the handshake message. The handshake message
+           negotiates the protocol version and supported login modules.
+        """
+        version_found = False
+        for version in self.__versions:
+            if version == request['version']:
+                version_found = True
+                break
         
-        while (serverIndex < len(self.__versions) and 
-               self.__versions[serverIndex] != request['version']):
-            serverIndex += 1
-        
-        if serverIndex >= len(self.__versions):
-            raise base.ProtocolException(base.Base.VERSION_NOT_SUPPORTED, 'Version not supported')
+        if not version_found:
+            raise base.ProtocolException(base.Base.VERSION_NOT_SUPPORTED,
+                                         'Version not supported')
 
-        loginModules = list(set(self.__loginModules) & set(request['login-modules']))
-        if (len(loginModules) == 0):
-            raise base.ProtocolException(base.Base.LOGINMODULE_NOT_SUPPORTED, 'No matching login modules')
+        login_modules = list(set(self.__supported_login_modules) &
+                             set(request['login-modules']))
+        if (len(login_modules) == 0):
+            raise base.ProtocolException(base.Base.LOGINMODULE_NOT_SUPPORTED,
+                                         'No matching login modules')
         else:
             return ({'response': 'handshake', 
                      'code': base.Base.OK,
-                     'login-modules': loginModules
+                     'login-modules': login_modules
                     }, 
                     login.Login(self.server)
                    )
