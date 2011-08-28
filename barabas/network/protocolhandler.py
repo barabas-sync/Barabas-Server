@@ -39,49 +39,34 @@ class ProtocolHandler(SocketServer.BaseRequestHandler):
         self.__start_terminal = ProtocolHandler.start_terminal
         self.__terminal = None
         self.__running = False
+        self.__buffer = ""
 
     def handle(self):
         """Empty docstring"""
         print "Opened connection with %s" % str(self.request.getpeername())
         self.__terminal = self.__start_terminal(self.server)
         self.__running = True
-        bfr = ""
         while self.__running:
-            msg = bfr
+            msg = self.__read_message()
+            if (self.__running == False):
+                break
+            
+            print "Received %s from %s" % (msg,
+                                           str(self.request.getpeername()))
+                
+            msg_io = StringIO.StringIO(msg)
             try:
-                msg += self.request.recv(1024)
-            
-                while not msg.find("\n") > 0:
-                    tmp = self.request.recv(1024)
-                    if tmp == "":
-                        self.__running = False
-                        break
-                    msg += tmp
-                
-                if not self.__running:
-                    break
-            
-                (msg, bfr) = msg.split("\n", 1)
-                
-                print "Received %s from %s" % (msg,
-                                               str(self.request.getpeername()))
-                
-                msg_io = StringIO.StringIO(msg)
-                try:
-                    json_request = json.load(msg_io)
-                    msg_io.close()
-                except:
-                    msg_io.close()
-                    response = {}
-                    response['response'] = 'error'
-                    response['code'] = BaseTerminal.BAD_REQUEST
-                    response['msg'] = 'Invalid request'
-                    response['original-request'] = msg
-                    self.__send(response)
-                    continue
-            except Exception, exc:
-                print exc
-                self.__running = False
+                json_request = json.load(msg_io)
+                msg_io.close()
+            except:
+                msg_io.close()
+                response = {}
+                response['response'] = 'error'
+                response['code'] = BaseTerminal.BAD_REQUEST
+                response['msg'] = 'Invalid request'
+                response['original-request'] = msg
+                self.__send(response)
+                continue
             
             try:
                 if ('request' not in json_request):
@@ -110,6 +95,23 @@ class ProtocolHandler(SocketServer.BaseRequestHandler):
         self.__terminal.stop()
         print "Closed connection with %s:%s" % self.request.getpeername()
     
+    def __read_message(self):
+        """Reads a message from the socket"""
+        msg = self.__buffer
+
+        while not msg.find("\n") > 0:
+            tmp = self.request.recv(1024)
+            if tmp == "":
+                self.__running = False
+                break
+            msg += tmp
+
+        if (self.__running == False):
+            return
+
+        (msg, self.__buffer) = msg.split("\n", 1)
+        return msg
+
     def __send(self, response):
         """Empty docstring"""
         response_io = StringIO.StringIO()
