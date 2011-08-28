@@ -57,9 +57,7 @@ class ProtocolHandler(SocketServer.BaseRequestHandler):
             msg_io = StringIO.StringIO(msg)
             try:
                 json_request = json.load(msg_io)
-                msg_io.close()
-            except:
-                msg_io.close()
+            except ValueError:
                 response = {}
                 response['response'] = 'error'
                 response['code'] = BaseTerminal.BAD_REQUEST
@@ -67,6 +65,8 @@ class ProtocolHandler(SocketServer.BaseRequestHandler):
                 response['original-request'] = msg
                 self.__send(response)
                 continue
+            finally:
+                msg_io.close()
             
             try:
                 if ('request' not in json_request):
