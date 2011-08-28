@@ -15,11 +15,13 @@ class TestProtocolHandler(unittest.TestCase):
     
     def setUp(self):
         """Set up the testcase"""
-        self.__protocol_handler = ProtocolHandler(MockTerminal)
-        self.__server = MockServer('A Server Name')
-        self.__protocol_handler.server = self.__server
-        self.__protocol_handler.setup()
         self.__request = MockRequest()
+        self.__server = MockServer('A Server Name')
+        ProtocolHandler.start_terminal = MockTerminal
+        self.__protocol_handler = ProtocolHandler(self.__request,
+                                                  self.__request.getpeername(),
+                                                  self.__server)
+        self.__protocol_handler.setup()
         self.__protocol_handler.request = self.__request
     
     def assert_responses(self, messages):

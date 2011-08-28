@@ -16,17 +16,29 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Barabas Server.  If not, see <http://www.gnu.org/licenses/>.
 
+"""Protocol handler class"""
+
 import SocketServer
 import json
 import StringIO
 
-from terminals.base import ProtocolException
-from terminals.base import Base as BaseTerminal
-from terminals.handshake import Handshake as HandshakeTerminal
+from barabas.network.terminals.base import ProtocolException
+from barabas.network.terminals.base import Base as BaseTerminal
+from barabas.network.terminals.handshake import Handshake as HandshakeTerminal
 
 class ProtocolHandler(SocketServer.BaseRequestHandler):
-    def __init__(self, start_terminal=HandshakeTerminal):
-        self.__start_terminal = start_terminal
+    """The protocol handler. It receives messages, and send them to the
+       correct terminal. The terminal formulates an answer and
+       the protocol handler sends it back to the client.
+    """
+
+    start_terminal = HandshakeTerminal
+
+    def setup(self):
+        """Setup function"""
+        self.__start_terminal = ProtocolHandler.start_terminal
+        self.__terminal = None
+        self.__running = False
 
     def handle(self):
         """Empty docstring"""
@@ -51,14 +63,15 @@ class ProtocolHandler(SocketServer.BaseRequestHandler):
             
                 (msg, bfr) = msg.split("\n", 1)
                 
-                print "Received %s from %s" % (msg, str(self.request.getpeername()))
+                print "Received %s from %s" % (msg,
+                                               str(self.request.getpeername()))
                 
-                msgString = StringIO.StringIO(msg)
+                msg_io = StringIO.StringIO(msg)
                 try:
-                    jsonRequest = json.load(msgString)
-                    msgString.close()
+                    json_request = json.load(msg_io)
+                    msg_io.close()
                 except:
-                    msgString.close()
+                    msg_io.close()
                     response = {}
                     response['response'] = 'error'
                     response['code'] = BaseTerminal.BAD_REQUEST
@@ -66,39 +79,39 @@ class ProtocolHandler(SocketServer.BaseRequestHandler):
                     response['original-request'] = msg
                     self.__send(response)
                     continue
-            except Exception, e:
-                print e
+            except Exception, exc:
+                print exc
                 self.__running = False
             
             try:
-                if ('request' not in jsonRequest):
+                if ('request' not in json_request):
                     raise ProtocolException(BaseTerminal.BAD_REQUEST,
                                             'Missing request')
             
-                if hasattr(self.__terminal, jsonRequest['request']):
-                    fnc = getattr(self.__terminal, jsonRequest['request'])
-                    (response, self.__terminal) = fnc(jsonRequest)
+                if hasattr(self.__terminal, json_request['request']):
+                    fnc = getattr(self.__terminal, json_request['request'])
+                    (response, self.__terminal) = fnc(json_request)
                     self.server.get_database_store().commit()
                     self.__send(response)
                 else:
                     response = {}
-                    response['response'] = jsonRequest['request']
+                    response['response'] = json_request['request']
                     response['code'] = BaseTerminal.METHOD_NOT_ALLOWED
                     response['msg'] = 'Method not allowed'
-                    response['original-request'] = jsonRequest
+                    response['original-request'] = json_request
                     self.__send(response)
             except ProtocolException, ex:
                 response = {}
                 response['response'] = 'error'
                 response['code'] = ex.code()
                 response['msg'] = ex.msg()
-                response['original-request'] = jsonRequest
+                response['original-request'] = json_request
                 self.__send(response)
         self.__terminal.stop()
         print "Closed connection with %s:%s" % self.request.getpeername()
     
     def __send(self, response):
         """Empty docstring"""
-        responseIO = StringIO.StringIO()
-        json.dump(response, responseIO)
-        self.request.send(responseIO.getvalue() + "\n")
+        response_io = StringIO.StringIO()
+        json.dump(response, response_io)
+        self.request.send(response_io.getvalue() + "\n")
