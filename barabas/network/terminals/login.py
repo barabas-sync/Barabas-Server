@@ -16,32 +16,38 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Barabas Server.  If not, see <http://www.gnu.org/licenses/>.
 
-import base
-import authenticated
+"""Login terminal"""
 
-from ...identity.passwordauthentication import PasswordAuthentication
+import barabas.network.terminals.base as base
+import barabas.network.terminals.authenticated as authenticated
+
+from barabas.identity.passwordauthentication import PasswordAuthentication
 
 class Login(base.Base):
+    """Login terminal"""
     def __init__(self, server,
                  authenticated_terminal=authenticated.Authenticated):
+        """Constructor"""
         base.Base.__init__(self, server)
         self.__authenticated_terminal = authenticated_terminal
 
     def login(self, request):
-        """Empty docstring"""
+        """Login method."""
         store = self.server.get_database_store()
     
         if request['login-module'] == 'user-password':
             username = unicode(request['module-info']['username'])
             password = request['module-info']['password']
             
-            pa = store.find(PasswordAuthentication, username = username).one()
-            if pa:
-                if pa.testPassword(password):
+            password_auth = store.find(PasswordAuthentication,
+                                       username = username).one()
+            if password_auth:
+                if password_auth.testPassword(password):
                     return ({'response': 'login', 
                              'code': base.Base.OK
                             },
-                            self.__authenticated_terminal(self.server, pa.user)
+                            self.__authenticated_terminal(self.server,
+                                                          password_auth.user)
                            )
                 else:
                     return ({'response': 'login',
